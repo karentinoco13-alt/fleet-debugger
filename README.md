@@ -140,3 +140,9 @@ deploy/           systemd unit, installer, example configs
 tools/            static demo builder (tools/build_demo.py)
 docs/             the published website (case study + demo), served by GitHub Pages
 ```
+
+## License
+
+Required Notice: Copyright (c) 2026 Karen Tinoco (https://www.thehumanelement.live)
+
+Free to read, run and adapt for non-commercial purposes (personal projects, research, teaching, evaluation) under the [PolyForm Noncommercial License 1.0.0](LICENSE.md). For commercial use, contact the author.
