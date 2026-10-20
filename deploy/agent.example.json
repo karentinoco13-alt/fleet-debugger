@@ -1,0 +1,120 @@
+{
+  "name": "dock07-drone",
+  "site": "Refinery North",
+  "token": "CHANGE-ME-long-random-string",
+  "mavlink_url": "udpin:127.0.0.1:14551",
+  "watch_processes": [
+    "px4",
+    "mavlink-routerd",
+    "mission_node.py",
+    "perception_node.py"
+  ],
+  "watch_units": [
+    "mavlink-router.service",
+    "mission.service",
+    "perception.service",
+    "uploader.service"
+  ],
+  "log_units": [
+    "NetworkManager.service",
+    "ModemManager.service"
+  ],
+  "required_modules": [
+    "pymavlink",
+    "numpy",
+    "cv2"
+  ],
+  "reachability_hosts": [
+    "ops.example.com:443",
+    "8.8.8.8:53"
+  ],
+  "disk_paths": [
+    "/",
+    "/var/log",
+    "/data"
+  ],
+  "dock": {
+    "type": "http",
+    "url": "http://192.168.10.2:8000/status",
+    "field_map": {
+      "lid_state": "roof.state",
+      "lid_motor_current_a": "roof.motor_current",
+      "charging_state": "charger.state",
+      "charge_contact_resistance_mohm": "charger.contact_mohm",
+      "enclosure_temp_c": "climate.temp_c",
+      "humidity_pct": "climate.rh",
+      "hvac_state": "climate.state",
+      "wind_mps": "weather.wind",
+      "gust_mps": "weather.gust",
+      "rain": "weather.rain",
+      "mains_power": "power.mains",
+      "ups_battery_pct": "power.ups_pct",
+      "cellular": "modem"
+    }
+  },
+  "payloads": [
+    {
+      "name": "rgb",
+      "kind": "rgb",
+      "device": "/dev/video0",
+      "status_file": "/run/payload/rgb.json"
+    },
+    {
+      "name": "thermal",
+      "kind": "thermal",
+      "device": "/dev/video2",
+      "status_file": "/run/payload/thermal.json"
+    },
+    {
+      "name": "ogi",
+      "kind": "ogi",
+      "device": "/dev/video4",
+      "status_file": "/run/payload/ogi.json"
+    }
+  ],
+  "upload": {
+    "path": "/data/outbox"
+  },
+  "safety": {
+    "status_file": "/run/safety/parachute.json"
+  },
+  "bundle_paths": [
+    "/data/logs/latest.ulg",
+    "/var/log/mission"
+  ],
+  "uplink": {
+    "url": "https://ops.example.com",
+    "token": "CHANGE-ME-ingest-token",
+    "interval_s": 30,
+    "spool_path": "/var/lib/fleetdebug/spool.jsonl",
+    "fallback_cmd": [
+      "/usr/local/bin/sbd-send"
+    ],
+    "fallback_interval_s": 600
+  },
+  "thresholds": {
+    "battery_min_v": 14.2,
+    "wind_max_mps": 11
+  },
+  "action_secret": "CHANGE-ME-per-vehicle-random-secret",
+  "custom_actions": {
+    "trigger_ffc": {
+      "argv": [
+        "/opt/payload/bin/thermal-ffc"
+      ],
+      "preconditions": [],
+      "description": "Force a thermal-camera flat-field correction"
+    }
+  },
+  "auto_remediate": [
+    {
+      "match": "Process 'mission_node.py' is not running",
+      "action": "restart_service",
+      "params": {
+        "unit": "mission.service"
+      },
+      "max_per_hour": 3
+    }
+  ],
+  "version_file": "/etc/drone-release"
+}

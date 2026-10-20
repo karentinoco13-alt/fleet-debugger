@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+*.db
+debug-*.tar.gz
+node_modules/
+dist/

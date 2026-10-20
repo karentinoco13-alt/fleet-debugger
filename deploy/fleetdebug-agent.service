@@ -1,0 +1,24 @@
+[Unit]
+Description=Drone debug/health agent (read-only)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/bin/python3 -m fleetdebug agent -c /etc/fleetdebug/agent.json --port 8765
+WorkingDirectory=/opt/fleetdebug
+Restart=always
+RestartSec=5
+# The debugger must never starve the flight software.
+Nice=10
+CPUQuota=15%
+MemoryMax=150M
+StateDirectory=fleetdebug
+# Read-only access to the system; it only writes its spool.
+ProtectSystem=strict
+ReadWritePaths=/var/lib/fleetdebug
+ProtectHome=true
+NoNewPrivileges=true
+SupplementaryGroups=systemd-journal adm dialout video
+
+[Install]
+WantedBy=multi-user.target
