@@ -101,137 +101,176 @@ ul.list { margin: 14px 0 0; padding-left: 20px; display: grid; gap: 6px; }
 .final p { color: #c9d6e6; margin-top: 10px; }
 footer { padding-block: 32px 48px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); }
 footer p { max-width: none; }
+.langs { position: absolute; top: 16px; right: max(20px, env(safe-area-inset-right, 0px)); display: inline-flex;
+         border: 1px solid #5b7ca3; border-radius: 8px; overflow: hidden; }
+.langs button { background: none; border: 0; color: #c9d6e6; font: 600 13px var(--font-ui); padding: 6px 12px; cursor: pointer; }
+.langs button[aria-pressed="true"] { background: #ffffff; color: #0f2742; }
+.langs button:focus-visible { outline: 3px solid #9cc3f0; outline-offset: -3px; }
+header.hero { position: relative; }
 </style>
 </head>
 <body>
 
 <header class="hero">
   <div class="wrap">
-    <div class="eyebrow">Portfolio project · Operations design</div>
-    <h1>Autonomous Fleet Debugger</h1>
-    <p>A remote debugging and self-healing console for fleets of autonomous vehicles. Vehicles fix most of their own problems; for the rest, operators get one plain-language decision per vehicle, including exactly when a technician needs to go on site.</p>
-    <div class="cta">
-      <a class="btn primary" href="demo.html">Try the live demo</a>
-      <a class="btn ghost" href="#how">How it decides</a>
+    <div class="langs" role="group" aria-label="Language / Idioma">
+      <button type="button" data-lang="en" lang="en" title="English">EN</button>
+      <button type="button" data-lang="es" lang="es" title="Español">ES</button>
     </div>
-    <img class="shot" src="img/dispatch.png" width="1920" height="1290"
+    <div class="eyebrow" data-es="Proyecto de portafolio · Diseño de operaciones">Portfolio project · Operations design</div>
+    <h1 data-es="Depurador de Flota Autónoma">Autonomous Fleet Debugger</h1>
+    <p data-es="Una consola de depuración remota y autorreparación para flotas de vehículos autónomos. Los vehículos resuelven solos la mayoría de sus problemas; para el resto, los operadores reciben una decisión en palabras simples por vehículo, incluido exactamente cuándo hace falta enviar un técnico al sitio.">A remote debugging and self-healing console for fleets of autonomous vehicles. Vehicles fix most of their own problems; for the rest, operators get one plain-language decision per vehicle, including exactly when a technician needs to go on site.</p>
+    <div class="cta">
+      <a class="btn primary" href="demo.html" data-es="Probar la demostración">Try the live demo</a>
+      <a class="btn ghost" href="#how" data-es="Cómo decide">How it decides</a>
+    </div>
+    <img class="shot" src="img/dispatch.png" data-es-src="img/es/dispatch.png" data-es-alt="La consola: a la izquierda, la flota agrupada por sitio; a la derecha, un vehículo cuyo panel de decisión dice Envíe un técnico ahora, con una lista de 4 pasos y una orden de trabajo generada." width="1920" height="1290"
          alt="The console: a fleet list grouped by site on the left; on the right, a vehicle whose decision panel reads Send a technician now, with a 4-step checklist and a generated work order.">
   </div>
 </header>
 
 <main>
   <section class="wrap">
-    <div class="eyebrow">The problem</div>
-    <h2>Remote vehicles break in boring ways, and every site visit is expensive</h2>
-    <p class="lead">Drones in base stations, inspection rovers and other autonomous vehicles run hundreds of kilometres from the people who support them, over cellular links.</p>
+    <div class="eyebrow" data-es="El problema">The problem</div>
+    <h2 data-es="Los vehículos remotos fallan por causas aburridas, y cada visita al sitio es costosa">Remote vehicles break in boring ways, and every site visit is expensive</h2>
+    <p class="lead" data-es="Los drones en estaciones base, los robots de inspección y otros vehículos autónomos operan a cientos de kilómetros de quienes les dan soporte, conectados por redes celulares.">Drones in base stations, inspection rovers and other autonomous vehicles run hundreds of kilometres from the people who support them, over cellular links.</p>
     <div class="grid2">
       <div>
-        <h3>What actually goes wrong</h3>
+        <h3 data-es="Qué falla en realidad">What actually goes wrong</h3>
         <ul class="list">
-          <li>Connectivity: a dropped VPN, a hung modem, a SIM with no service, a wrong clock that breaks secure uploads</li>
-          <li>People errors: a config edited by hand, a service stopped and forgotten, a mission uploaded without its geofence</li>
-          <li>Software that crashes after an update</li>
-          <li>Less often: real hardware faults such as a damaged propeller, a jammed lid or dirty charging contacts</li>
+          <li data-es="Conectividad: una VPN caída, un módem colgado, una SIM sin servicio, un reloj desfasado que impide las cargas seguras">Connectivity: a dropped VPN, a hung modem, a SIM with no service, a wrong clock that breaks secure uploads</li>
+          <li data-es="Errores humanos: una configuración editada a mano, un servicio detenido y olvidado, una misión cargada sin su geocerca">People errors: a config edited by hand, a service stopped and forgotten, a mission uploaded without its geofence</li>
+          <li data-es="Software que falla después de una actualización">Software that crashes after an update</li>
+          <li data-es="Con menos frecuencia: fallas reales de hardware, como una hélice dañada, una tapa trabada o contactos de carga sucios">Less often: real hardware faults such as a damaged propeller, a jammed lid or dirty charging contacts</li>
         </ul>
       </div>
       <div>
-        <h3>Why it hurts</h3>
+        <h3 data-es="Por qué duele">Why it hurts</h3>
         <ul class="list">
-          <li>Operators see raw alarms and have to guess what to do</li>
-          <li>Technicians are sent for problems a restart would fix, and arrive without the right parts</li>
-          <li>Nobody can say when remote options are truly used up</li>
+          <li data-es="Los operadores ven alarmas sin procesar y tienen que adivinar qué hacer">Operators see raw alarms and have to guess what to do</li>
+          <li data-es="Se envían técnicos por problemas que un reinicio resolvería, y llegan sin las piezas correctas">Technicians are sent for problems a restart would fix, and arrive without the right parts</li>
+          <li data-es="Nadie puede decir cuándo se agotaron de verdad las opciones a distancia">Nobody can say when remote options are truly used up</li>
         </ul>
       </div>
     </div>
   </section>
 
   <section class="wrap">
-    <div class="eyebrow">The human element</div>
-    <h2>Designed for the operator, not the engineer</h2>
-    <p class="lead">Every vehicle answers one question in plain words: what should I do now? The six possible answers map directly to an operating procedure.</p>
-    <div class="chips" aria-label="The six decisions">
-      <span class="chip crit">Send technician</span><span class="chip warn">Schedule visit</span>
-      <span class="chip info">Fix remotely</span><span class="chip info">Fixing itself</span>
-      <span class="chip warn">Wait</span><span class="chip ok">OK</span>
+    <div class="eyebrow" data-es="El elemento humano">The human element</div>
+    <h2 data-es="Diseñado para el operador, no para el ingeniero">Designed for the operator, not the engineer</h2>
+    <p class="lead" data-es="Cada vehículo responde una pregunta en palabras simples: ¿qué hago ahora? Las seis respuestas posibles corresponden directamente a un procedimiento operativo.">Every vehicle answers one question in plain words: what should I do now? The six possible answers map directly to an operating procedure.</p>
+    <div class="chips" aria-label="The six decisions" data-es-aria="Las seis decisiones">
+      <span class="chip crit" data-es="Enviar técnico">Send technician</span><span class="chip warn" data-es="Programar visita">Schedule visit</span>
+      <span class="chip info" data-es="Solucionar a distancia">Fix remotely</span><span class="chip info" data-es="Reparándose solo">Fixing itself</span>
+      <span class="chip warn" data-es="Esperar">Wait</span><span class="chip ok">OK</span>
     </div>
     <ul class="list">
-      <li>Every problem comes with numbered steps, what "fixed" looks like, and the rule for when to send someone</li>
-      <li>Remote fixes are one button with a two-step confirm; the vehicle refuses anything unsafe, such as a reboot while it is moving</li>
-      <li>When a technician is needed, the work order writes itself: what's broken, what was already tried, what to bring, how to confirm the fix</li>
-      <li>A legend and standard operating procedure let a new operator be trained in one 90-minute session</li>
+      <li data-es="Cada problema viene con pasos numerados, cómo se ve &quot;solucionado&quot; y la regla de cuándo enviar a alguien">Every problem comes with numbered steps, what "fixed" looks like, and the rule for when to send someone</li>
+      <li data-es="Las soluciones a distancia son un botón con confirmación en dos pasos; el vehículo rechaza todo lo inseguro, como reiniciarse mientras se mueve">Remote fixes are one button with a two-step confirm; the vehicle refuses anything unsafe, such as a reboot while it is moving</li>
+      <li data-es="Cuando hace falta un técnico, la orden de trabajo se escribe sola: qué está roto, qué se intentó, qué llevar y cómo confirmar la solución">When a technician is needed, the work order writes itself: what's broken, what was already tried, what to bring, how to confirm the fix</li>
+      <li data-es="Una guía visual y un procedimiento operativo estándar permiten capacitar a un operador nuevo en una sesión de 90 minutos">A legend and standard operating procedure let a new operator be trained in one 90-minute session</li>
     </ul>
   </section>
 
   <section class="wrap" id="how">
-    <div class="eyebrow">How it decides</div>
-    <h2>A technician is the last step, not the first</h2>
-    <p class="lead">Every problem climbs the same ladder, and most stop at step 1. Physical damage and safety issues skip straight to step 4.</p>
+    <div class="eyebrow" data-es="Cómo decide">How it decides</div>
+    <h2 data-es="El técnico es el último paso, no el primero">A technician is the last step, not the first</h2>
+    <p class="lead" data-es="Cada problema sube la misma escalera, y la mayoría se queda en el paso 1. Los daños físicos y los temas de seguridad pasan directo al paso 4.">Every problem climbs the same ladder, and most stop at step 1. Physical damage and safety issues skip straight to step 4.</p>
     <ol class="ladder">
-      <li><span class="n">STEP 1</span><h3>The vehicle fixes it itself</h3><p>On board, even with no connection: reconnect, reset the modem, switch SIM, restore settings, restart, roll back.</p></li>
-      <li><span class="n">STEP 2</span><h3>An operator fixes it remotely</h3><p>One-click fixes, verified afterwards. Up to 2 tries.</p></li>
-      <li><span class="n">STEP 3</span><h3>Wait for it to clear</h3><p>GPS, heat, charging, a silent link: each has a time limit, from 1 to 4 hours.</p></li>
-      <li class="last"><span class="n">STEP 4</span><h3>Send a technician</h3><p>Only when the steps above are used up, with the work order ready.</p></li>
+      <li><span class="n" data-es="PASO 1">STEP 1</span><h3 data-es="El vehículo lo repara solo">The vehicle fixes it itself</h3><p data-es="A bordo, incluso sin conexión: reconecta, reinicia el módem, cambia de SIM, restaura la configuración, reinicia y vuelve a la versión anterior.">On board, even with no connection: reconnect, reset the modem, switch SIM, restore settings, restart, roll back.</p></li>
+      <li><span class="n" data-es="PASO 2">STEP 2</span><h3 data-es="Un operador lo soluciona a distancia">An operator fixes it remotely</h3><p data-es="Soluciones de un clic, verificadas después. Hasta 2 intentos.">One-click fixes, verified afterwards. Up to 2 tries.</p></li>
+      <li><span class="n" data-es="PASO 3">STEP 3</span><h3 data-es="Esperar a que se resuelva">Wait for it to clear</h3><p data-es="GPS, calor, carga, un enlace en silencio: cada uno tiene un límite de tiempo, de 1 a 4 horas.">GPS, heat, charging, a silent link: each has a time limit, from 1 to 4 hours.</p></li>
+      <li class="last"><span class="n" data-es="PASO 4">STEP 4</span><h3 data-es="Enviar un técnico">Send a technician</h3><p data-es="Solo cuando se agotaron los pasos anteriores, con la orden de trabajo lista.">Only when the steps above are used up, with the work order ready.</p></li>
     </ol>
-    <p class="note">The thresholds are explicit and configurable, and shown to operators in plain words, so the decision to dispatch is consistent from shift to shift.</p>
+    <p class="note" data-es="Los umbrales son explícitos y configurables, y se muestran a los operadores en palabras simples, así que la decisión de enviar a alguien es la misma en todos los turnos.">The thresholds are explicit and configurable, and shown to operators in plain words, so the decision to dispatch is consistent from shift to shift.</p>
   </section>
 
   <section class="wrap">
-    <div class="eyebrow">Self-healing</div>
-    <h2>Most incidents never reach a person</h2>
+    <div class="eyebrow" data-es="Autorreparación">Self-healing</div>
+    <h2 data-es="La mayoría de los incidentes nunca llega a una persona">Most incidents never reach a person</h2>
     <div class="grid2">
       <figure>
-        <img class="framed" src="img/self-healing.png" width="1920" height="1140" loading="lazy"
+        <img class="framed" src="img/self-healing.png" data-es-src="img/es/self-healing.png" data-es-alt="Un vehículo que muestra Reparándose solo: paso 2 de 5, con el arreglo que ya intentó." width="1920" height="1140" loading="lazy"
              alt="A vehicle showing Fixing itself: step 2 of 5, with the fix it has already tried.">
-        <figcaption>A vehicle working through its own fix ladder. The operator only watches.</figcaption>
+        <figcaption data-es="Un vehículo aplicando su propia escalera de arreglos. El operador solo observa.">A vehicle working through its own fix ladder. The operator only watches.</figcaption>
       </figure>
       <div>
-        <p>Each vehicle runs short repair ladders, one step at a time, waiting to see whether each step worked before trying the next. If a fix keeps working but the problem keeps coming back, it stops and asks a person instead of looping.</p>
+        <p data-es="Cada vehículo ejecuta escaleras cortas de reparación, un paso a la vez, y espera a ver si cada paso funcionó antes de probar el siguiente. Si un arreglo funciona pero el problema sigue volviendo, se detiene y pide ayuda a una persona en lugar de repetir.">Each vehicle runs short repair ladders, one step at a time, waiting to see whether each step worked before trying the next. If a fix keeps working but the problem keeps coming back, it stops and asks a person instead of looping.</p>
         <div class="stats" style="grid-template-columns: 1fr;">
-          <div class="stat ok"><div class="v">91%</div><div class="k">of problems fixed by the vehicle itself</div></div>
-          <div class="stat info"><div class="v">7%</div><div class="k">fixed remotely by an operator</div></div>
-          <div class="stat crit"><div class="v">3%</div><div class="k">needed a technician on site</div></div>
+          <div class="stat ok"><div class="v">91%</div><div class="k" data-es="de los problemas, reparados por el propio vehículo">of problems fixed by the vehicle itself</div></div>
+          <div class="stat info"><div class="v">7%</div><div class="k" data-es="solucionados a distancia por un operador">fixed remotely by an operator</div></div>
+          <div class="stat crit"><div class="v">3%</div><div class="k" data-es="necesitaron un técnico en el sitio">needed a technician on site</div></div>
         </div>
-        <p class="note">Figures from the simulated week in the demo, not a field deployment.</p>
+        <p class="note" data-es="Cifras de la semana simulada de la demostración, no de una operación real.">Figures from the simulated week in the demo, not a field deployment.</p>
       </div>
     </div>
   </section>
 
   <section class="wrap">
-    <div class="eyebrow">For managers</div>
-    <h2>The week at a glance</h2>
+    <div class="eyebrow" data-es="Para gerentes">For managers</div>
+    <h2 data-es="La semana de un vistazo">The week at a glance</h2>
     <figure style="margin-top:28px">
-      <img class="framed" src="img/trends.png" width="1920" height="1140" loading="lazy"
+      <img class="framed" src="img/trends.png" data-es-src="img/es/trends.png" data-es-alt="La pestaña Tendencias: una barra con cómo se resolvieron los problemas y una tabla con las reglas para enviar técnicos en palabras simples." width="1920" height="1140" loading="lazy"
            alt="The Trends tab: a bar showing how problems were resolved, and a table of the dispatch rules in plain words.">
-      <figcaption>How problems got resolved, the dispatch rules, and the recurring problems that become the maintenance backlog.</figcaption>
+      <figcaption data-es="Cómo se resolvieron los problemas, las reglas para enviar técnicos y los problemas recurrentes que forman la lista de mantenimiento.">How problems got resolved, the dispatch rules, and the recurring problems that become the maintenance backlog.</figcaption>
     </figure>
   </section>
 
   <section class="wrap">
-    <div class="eyebrow">Under the hood</div>
-    <h2>Built to work when the network doesn't</h2>
+    <div class="eyebrow" data-es="Por dentro">Under the hood</div>
+    <h2 data-es="Hecho para funcionar cuando la red no lo hace">Built to work when the network doesn't</h2>
     <div class="tech">
-      <div><b>On-vehicle agent</b>Python on Linux, standard library only. Reads the operating system, the autopilot (MAVLink), the base station, cameras and safety systems.</div>
-      <div><b>Store and forward</b>Reports are kept on the vehicle while offline and sent when the link returns. A 70-byte heartbeat can travel over SMS or satellite.</div>
-      <div><b>Safe remote actions</b>Signed commands that expire, can't be replayed, check safety conditions on the live vehicle, and are verified and logged.</div>
-      <div><b>Fleet patterns</b>Tells a site-wide cause (a carrier outage) or a bad software version apart from a single faulty vehicle.</div>
-      <div><b>Dispatch policy</b>Configurable thresholds turn findings, elapsed time and past attempts into one decision and a work order.</div>
-      <div><b>Tested</b>49 automated tests, including one that checks every connectivity and settings fault is fixed without a dispatch.</div>
+      <div data-es="&lt;b&gt;Agente a bordo&lt;/b&gt;Python en Linux, solo con la biblioteca estándar. Lee el sistema operativo, el piloto automático (MAVLink), la estación base, las cámaras y los sistemas de seguridad."><b>On-vehicle agent</b>Python on Linux, standard library only. Reads the operating system, the autopilot (MAVLink), the base station, cameras and safety systems.</div>
+      <div data-es="&lt;b&gt;Guardar y reenviar&lt;/b&gt;Los reportes se guardan en el vehículo mientras no hay conexión y se envían cuando vuelve el enlace. Una señal de vida de 70 bytes puede viajar por SMS o satélite."><b>Store and forward</b>Reports are kept on the vehicle while offline and sent when the link returns. A 70-byte heartbeat can travel over SMS or satellite.</div>
+      <div data-es="&lt;b&gt;Acciones remotas seguras&lt;/b&gt;Comandos firmados que vencen, no se pueden repetir, verifican las condiciones de seguridad en el vehículo y quedan comprobados y registrados."><b>Safe remote actions</b>Signed commands that expire, can't be replayed, check safety conditions on the live vehicle, and are verified and logged.</div>
+      <div data-es="&lt;b&gt;Patrones de flota&lt;/b&gt;Distingue una causa de todo el sitio (una caída del operador) o una versión de software defectuosa de un solo vehículo con falla."><b>Fleet patterns</b>Tells a site-wide cause (a carrier outage) or a bad software version apart from a single faulty vehicle.</div>
+      <div data-es="&lt;b&gt;Política de envío&lt;/b&gt;Umbrales configurables convierten los hallazgos, el tiempo transcurrido y los intentos previos en una sola decisión y una orden de trabajo."><b>Dispatch policy</b>Configurable thresholds turn findings, elapsed time and past attempts into one decision and a work order.</div>
+      <div data-es="&lt;b&gt;Probado&lt;/b&gt;50 pruebas automáticas, incluida una que verifica que cada falla de conectividad y configuración se resuelve sin enviar a nadie."><b>Tested</b>50 automated tests, including one that checks every connectivity and settings fault is fixed without a dispatch.</div>
     </div>
   </section>
 
   <div class="wrap">
     <div class="final">
-      <h2>See it run</h2>
-      <p>The demo is a simulated fleet of drones and ground rovers. Two vehicles fix themselves live in the first 30 seconds, and you can run the remote fixes yourself.</p>
-      <div class="cta" style="margin-bottom:0"><a class="btn primary" href="demo.html">Open the live demo</a></div>
+      <h2 data-es="Véalo funcionar">See it run</h2>
+      <p data-es="La demostración es una flota simulada de drones y robots terrestres. Dos vehículos se reparan solos en vivo durante los primeros 30 segundos, y usted puede ejecutar las soluciones a distancia.">The demo is a simulated fleet of drones and ground rovers. Two vehicles fix themselves live in the first 30 seconds, and you can run the remote fixes yourself.</p>
+      <div class="cta" style="margin-bottom:0"><a class="btn primary" href="demo.html" data-es="Abrir la demostración">Open the live demo</a></div>
     </div>
   </div>
 </main>
 
 <footer>
   <div class="wrap">
-    <p>A portfolio project by Karen Tinoco. Designed and directed by the author; implemented with Claude Code as an AI pair programmer. All vehicle data is simulated. Not affiliated with any vehicle manufacturer.</p>
+    <p data-es="Un proyecto de portafolio de Karen Tinoco. Diseñado y dirigido por la autora; implementado con Claude Code como programador de IA en pareja. Todos los datos de vehículos son simulados. Sin afiliación con ningún fabricante de vehículos.">A portfolio project by Karen Tinoco. Designed and directed by the author; implemented with Claude Code as an AI pair programmer. All vehicle data is simulated. Not affiliated with any vehicle manufacturer.</p>
   </div>
 </footer>
+<script>
+// English / Spanish. Spanish lives in data-es attributes; the choice is shared with the demo.
+(() => {
+  const els = [...document.querySelectorAll('[data-es]')];
+  els.forEach(el => { el.dataset.en = el.innerHTML; });
+  const imgs = [...document.querySelectorAll('[data-es-src]')];
+  imgs.forEach(i => { i.dataset.enSrc = i.getAttribute('src'); i.dataset.enAlt = i.alt; });
+  const aria = [...document.querySelectorAll('[data-es-aria]')];
+  aria.forEach(a => { a.dataset.enAria = a.getAttribute('aria-label'); });
+  const titles = {en: document.title, es: 'Depurador de Flota Autónoma'};
+  function apply(lang) {
+    const es = lang === 'es';
+    document.documentElement.lang = lang;
+    document.title = titles[lang];
+    els.forEach(el => { el.innerHTML = es ? el.dataset.es : el.dataset.en; });
+    imgs.forEach(i => { i.src = es ? i.dataset.esSrc : i.dataset.enSrc; i.alt = es ? i.dataset.esAlt : i.dataset.enAlt; });
+    aria.forEach(a => a.setAttribute('aria-label', es ? a.dataset.esAria : a.dataset.enAria));
+    document.querySelectorAll('.langs button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
+  }
+  let lang = '';
+  try { lang = localStorage.getItem('fleetdebug.lang') || ''; } catch (e) {}
+  if (lang !== 'en' && lang !== 'es') lang = (navigator.language || '').toLowerCase().startsWith('es') ? 'es' : 'en';
+  document.querySelectorAll('.langs button').forEach(b => b.onclick = () => {
+    try { localStorage.setItem('fleetdebug.lang', b.dataset.lang); } catch (e) {}
+    apply(b.dataset.lang);
+  });
+  apply(lang);
+})();
+</script>
 </body>
 </html>

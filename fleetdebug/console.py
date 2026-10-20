@@ -310,6 +310,9 @@ def make_handler(fleet, users=None, metrics_public=False):
             if url.path in ("/", "/index.html"):
                 with open(os.path.join(STATIC, "index.html"), "rb") as f:
                     return self._send(200, f.read(), "text/html; charset=utf-8")
+            if url.path == "/i18n.js":
+                with open(os.path.join(STATIC, "i18n.js"), "rb") as f:
+                    return self._send(200, f.read(), "text/javascript; charset=utf-8")
             if url.path == "/metrics":
                 return self._send(200, metrics.render(fleet.view()), "text/plain; version=0.0.4")
             if url.path == "/api/me":

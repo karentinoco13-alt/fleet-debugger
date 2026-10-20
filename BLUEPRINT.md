@@ -277,6 +277,7 @@ The technician arrives with the bundle already analyzed, the likely part (prop, 
 | Fleet-wide correlation | ✅ `fleetcorr.py`: site-level (environment/RF/carrier) vs. software-version (regression) patterns |
 | Software/OTA visibility | ✅ version, A/B boot slot, RAUC/Mender detection, config hash in every report |
 | Time-series metrics | ✅ Prometheus `/metrics` on the agent and console, so Grafana dashboards and SLO alerts plug straight in |
+| Dashboard in English and Spanish | ✅ `static/i18n.js`: the interface and every engine message, with an EN / ES switch |
 | MQTT transport | ⏳ next: an MQTT uplink beside HTTPS (same envelope, persistent sessions) |
 | Remote shell broker (Rung 3) | 🔌 integrate WireGuard/Tailscale/Teleport; don't build your own |
 | OTA / A/B updates (Rung 5) | 🔌 integrate RAUC/Mender/SWUpdate (the agent already reports slot + version) |

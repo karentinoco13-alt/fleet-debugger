@@ -103,6 +103,9 @@ th { color: var(--muted); font-weight: 600; font-size: 12px; }
 .empty { color: var(--muted); padding: 20px; text-align: center; }
 svg text { fill: var(--muted); font-size: 10px; }
 .hidden { display: none; }
+.langs { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.langs button { background: none; border: 0; font: 600 12px var(--font-ui); color: var(--muted); padding: 5px 10px; cursor: pointer; }
+.langs button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
 .chip { font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap;
         margin-left: auto; }
 .summary .chip { margin-left: 0; }
@@ -162,51 +165,57 @@ input.txt { font: inherit; color: var(--ink); background: var(--panel); border: 
 </head>
 <body>
 <header>
-  <h1>Autonomous Fleet Debugger</h1>
+  <h1 data-i18n>Autonomous Fleet Debugger</h1>
   <nav>
-    <button data-tab="fleet" class="active">Fleet</button>
-    <button data-tab="history">Trends</button>
-    <button data-tab="logs">Flight log</button>
-    <button data-tab="audit">Action log</button>
+    <button data-tab="fleet" class="active" data-i18n>Fleet</button>
+    <button data-tab="history" data-i18n>Trends</button>
+    <button data-tab="logs" data-i18n>Flight log</button>
+    <button data-tab="audit" data-i18n>Action log</button>
   </nav>
   <div class="summary" id="summary"></div>
+  <div class="langs" role="group" aria-label="Language / Idioma">
+    <button type="button" data-lang="en" lang="en" title="English">EN</button>
+    <button type="button" data-lang="es" lang="es" title="Español">ES</button>
+  </div>
 </header>
 <main>
   <section id="tab-fleet">
     <div id="incidents"></div>
     <div class="layout">
-      <div class="card" id="list"><div class="empty">Loading fleet…</div></div>
-      <div class="card" id="detail"><div class="empty">Select a vehicle</div></div>
+      <div class="card" id="list"><div class="empty" data-i18n>Loading fleet…</div></div>
+      <div class="card" id="detail"><div class="empty" data-i18n>Select a vehicle</div></div>
     </div>
   </section>
   <section id="tab-history" class="hidden">
-    <div class="card" style="margin-bottom:16px"><h3 style="margin-top:0">How problems got resolved (last 7 days)</h3>
+    <div class="card" style="margin-bottom:16px"><h3 style="margin-top:0" data-i18n>How problems got resolved (last 7 days)</h3>
       <div id="resolution"></div></div>
-    <div class="card" style="margin-bottom:16px"><h3 style="margin-top:0">When the app says to send a technician</h3>
+    <div class="card" style="margin-bottom:16px"><h3 style="margin-top:0" data-i18n>When the app says to send a technician</h3>
       <div class="scroll" id="policy"></div></div>
     <div class="layout">
-      <div class="card"><h3 style="margin-top:0">Pre-flight availability (7 days)</h3><div id="avail"></div>
-        <h3>Findings by subsystem</h3><div id="bycomp"></div></div>
-      <div class="card"><h3 style="margin-top:0">Recurring problems (maintenance backlog)</h3>
+      <div class="card"><h3 style="margin-top:0" data-i18n>Pre-flight availability (7 days)</h3><div id="avail"></div>
+        <h3 data-i18n>Findings by subsystem</h3><div id="bycomp"></div></div>
+      <div class="card"><h3 style="margin-top:0" data-i18n>Recurring problems (maintenance backlog)</h3>
         <div class="scroll" id="recurring"></div></div>
     </div>
   </section>
   <section id="tab-audit" class="hidden">
-    <div class="card"><h3 style="margin-top:0">Remote actions (who, what, why, result)</h3>
+    <div class="card"><h3 style="margin-top:0" data-i18n>Remote actions (who, what, why, result)</h3>
       <div class="scroll" id="auditlog"></div></div>
   </section>
   <section id="tab-logs" class="hidden">
     <div class="card">
       <div class="row"><input type="file" id="logfile" accept=".csv">
-        <button class="btn secondary" id="samplelog" hidden>Analyze sample flight</button>
-        <span class="meta">CSV with time_s plus any of: vibration_x/y/z, gps_satellites, gps_hdop,
-        ekf_pos_variance, battery_voltage, cpu_percent, soc_temp_c, mode, event</span></div>
+        <button class="btn secondary" id="samplelog" hidden data-i18n>Analyze sample flight</button>
+        <span class="meta" data-i18n>CSV with time_s plus any of: vibration_x/y/z, gps_satellites, gps_hdop, ekf_pos_variance, battery_voltage, cpu_percent, soc_temp_c, mode, event</span></div>
       <div id="logresult"></div>
     </div>
   </section>
 </main>
+<script src="i18n.js"></script>
 <script>
-let fleet = [], selected = null, faults = {};
+let fleet = [], selected = null, faults = {}, lastLogText = null;
+const t = (s, v) => I18N.t(s, v), tr = s => I18N.tr(s);
+const act = a => tr(String(a ?? '').replace(/_/g, ' '));  // action id -> readable name
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
@@ -233,8 +242,8 @@ async function load(refresh) {
   if (selected && !busy) renderDetail();
   try {
     const inc = await (await fetch('/api/incidents')).json();
-    $('#incidents').innerHTML = inc.map(i => `<div class="incident"><b>Fleet pattern · ${esc(i.scope)} "${esc(i.group)}"</b>:
-      ${esc(i.signature)} on ${i.vehicles.map(esc).join(', ')}<div class="meta" style="color:inherit">${esc(i.hint)}</div></div>`).join('');
+    $('#incidents').innerHTML = inc.map(i => `<div class="incident"><b>${esc(t('Fleet pattern · {scope} "{group}"', {scope: tr(i.scope), group: i.group}))}</b>:
+      ${esc(t('{sig} on {list}', {sig: tr(i.signature), list: i.vehicles.join(', ')}))}<div class="meta" style="color:inherit">${esc(tr(i.hint))}</div></div>`).join('');
   } catch (e) {}
 }
 
@@ -246,23 +255,23 @@ const DECISION = {  // plain-language label and tone for each dispatch decision
 function renderList() {
   const n = k => fleet.filter(d => d.dispatch?.decision === k).length;
   const tech = n('dispatch-now') + n('dispatch-scheduled');
-  $('#summary').innerHTML = `<span class="chip crit">${tech} need a technician</span>
-    <span class="chip info">${n('try-remote')} to fix remotely</span>
-    <span class="chip info">${n('auto-fixing')} fixing itself</span>
-    <span class="chip ok">${n('ok')} OK</span>`;
-  if (!fleet.length) { $('#list').innerHTML = '<div class="empty">No vehicles yet. Waiting for first poll…</div>'; return; }
+  $('#summary').innerHTML = `<span class="chip crit">${t('{n} need a technician', {n: tech})}</span>
+    <span class="chip info">${t('{n} to fix remotely', {n: n('try-remote')})}</span>
+    <span class="chip info">${t('{n} fixing itself', {n: n('auto-fixing')})}</span>
+    <span class="chip ok">${t('{n} OK', {n: n('ok')})}</span>`;
+  if (!fleet.length) { $('#list').innerHTML = `<div class="empty">${t('No vehicles yet. Waiting for first poll…')}</div>`; return; }
   const bySite = {};
-  fleet.forEach(d => (bySite[d.site || 'Unassigned'] ||= []).push(d));
+  fleet.forEach(d => (bySite[d.site || t('Unassigned')] ||= []).push(d));
   $('#list').innerHTML = Object.entries(bySite).map(([site, ds]) =>
     `<div class="site">${esc(site)}</div>` + ds.map(d => {
       const [label, tone] = DECISION[d.dispatch?.decision || 'ok'];
-      const top = d.dispatch?.items?.[0]?.title || 'All checks pass';
+      const top = tr(d.dispatch?.items?.[0]?.title) || t('All checks pass');
       return `<div class="drone ${d.name === selected ? 'sel' : ''}" data-name="${esc(d.name)}">
         <span class="dot ${d.status}"></span>
         <div style="min-width:0"><div class="name">${esc(d.name)}
-          <span class="badge ${d.preflight?.decision}" title="Cleared to fly?">${d.preflight?.decision}</span></div>
+          <span class="badge ${d.preflight?.decision}" title="${t('Cleared to fly?')}">${d.preflight?.decision}</span></div>
           <div class="sub">${esc(top)}</div></div>
-        <span class="chip ${tone}">${label}</span></div>`;
+        <span class="chip ${tone}">${t(label)}</span></div>`;
     }).join('')).join('');
   document.querySelectorAll('.drone').forEach(el => el.onclick = () => {
     selected = el.dataset.name; renderList(); renderDetail();
@@ -272,7 +281,7 @@ function renderList() {
 
 function ruleFor(d, f) {
   const it = d.dispatch?.items?.find(i => i.title === f.title);
-  return it ? `${it.rule} ${it.why}` : '';
+  return it ? `${tr(it.rule)} ${tr(it.why)}` : '';
 }
 
 function fmtH(h) { return h == null ? '' : h < 1 ? `${Math.max(1, Math.round(h * 60))} min` : `${h.toFixed(1)} h`; }
@@ -287,62 +296,69 @@ function decisionPanel(d) {
   const auto = by('auto-fixing');
   const spent = x.items.filter(i => i.auto?.exhausted);
   const healState = auto.length ? 'doing' : 'done';
-  const healBody = auto.length ? [...new Set(auto.map(i => i.why))].map(esc).join('<br>')
-    : spent.length ? [...new Set(spent.map(i => `Tried ${i.auto.tried.map(t => t.replace(/_/g, ' ')).join(', then ')}: it didn't hold.`))].map(esc).join('<br>')
-    : fixedAuto.length ? `Fixed ${fixedAuto.length} problem(s) by itself: ` + fixedAuto.map(a => esc(a.action.replace(/_/g, ' '))).join(', ')
-    : 'Nothing for it to fix right now.';
-  const remote = by('try-remote');
+  const then = I18N.lang === 'es' ? ', luego ' : ', then ';
+  const healBody = auto.length ? [...new Set(auto.map(i => tr(i.why)))].map(esc).join('<br>')
+    : spent.length ? [...new Set(spent.map(i => t('Tried {list}: it didn\'t hold.', {list: i.auto.tried.map(act).join(then)})))].map(esc).join('<br>')
+    : fixedAuto.length ? esc(t('Fixed {n} problem(s) by itself: {list}', {n: fixedAuto.length, list: fixedAuto.map(a => act(a.action)).join(', ')}))
+    : t('Nothing for it to fix right now.');
+  // One button per distinct fix: two findings can share the same remedy.
+  const seenFix = new Set();
+  const remote = by('try-remote').filter(i => {
+    const k = i.action ? i.action.name + JSON.stringify(i.action.params) : i.title;
+    return seenFix.has(k) ? false : seenFix.add(k);
+  });
   const tried = x.items.filter(i => (i.attempts || 0) > 0 || i.auto?.exhausted);
   const remoteBody = remote.length
-    ? remote.map(i => `${esc(i.title)}: ${esc(i.why)} ${i.action ? `<button class="btn fixbtn" data-action="${esc(i.action.name)}"
-        data-params="${esc(JSON.stringify(i.action.params))}" data-label="${esc(i.action.label)}">${esc(i.action.label)}</button>` : ''}`).join('<br>')
-    : tried.length ? 'All remote fixes have been tried.' : 'None needed.';
+    ? remote.map(i => `${esc(tr(i.title))}: ${esc(tr(i.why))} ${i.action ? `<button class="btn fixbtn" data-action="${esc(i.action.name)}"
+        data-params="${esc(JSON.stringify(i.action.params))}" data-label="${esc(i.action.label)}">${esc(tr(i.action.label))}</button>` : ''}`).join('<br>')
+    : tried.length ? t('All remote fixes have been tried.') : t('None needed.');
   const waits = by('wait');
   const site = [...by('dispatch-now'), ...by('dispatch-scheduled')];
-  return `<section class="decision ${tone}" aria-label="What to do">
-    <div class="verdict"><span class="chip ${tone} big">${label}</span><h2>${esc(x.headline)}</h2></div>
-    <p>${esc(x.explain)}</p>
+  const lines = list => list.map(i => `${esc(tr(i.title))}: ${esc(tr(i.why))}`).join('<br>');
+  return `<section class="decision ${tone}" aria-label="${t('What to do')}">
+    <div class="verdict"><span class="chip ${tone} big">${t(label)}</span><h2>${esc(tr(x.headline))}</h2></div>
+    <p>${esc(tr(x.explain))}</p>
     <ol class="steps">
-      ${row(healState, '1. The vehicle fixes it itself', healBody)}
-      ${row(remote.length ? 'todo' : 'done', '2. Fix it remotely from here', remoteBody)}
-      ${row(waits.length ? 'doing' : 'done', '3. Wait for it to clear', waits.length ? waits.map(i => `${esc(i.title)}: ${esc(i.why)}`).join('<br>') : 'Nothing to wait for.')}
-      ${row(site.length ? 'todo' : 'none', '4. Send someone on site', site.length ? site.map(i => `${esc(i.title)}: ${esc(i.why)}`).join('<br>') : 'Not needed.')}
+      ${row(healState, t('1. The vehicle fixes it itself'), healBody)}
+      ${row(remote.length ? 'todo' : 'done', t('2. Fix it remotely from here'), remoteBody)}
+      ${row(waits.length ? 'doing' : 'done', t('3. Wait for it to clear'), waits.length ? lines(waits) : t('Nothing to wait for.'))}
+      ${row(site.length ? 'todo' : 'none', t('4. Send someone on site'), site.length ? lines(site) : t('Not needed.'))}
     </ol>
-    ${lastActionsFor === d.name ? lastResult : ''}
-    ${x.work_order ? `<details class="wo" open><summary>Work order for the technician</summary>
-      <pre id="wotext">${esc(x.work_order)}</pre>
-      <button class="btn secondary" id="copywo">Copy work order</button> <span class="meta" id="copied" role="status"></span></details>` : ''}
+    ${lastActionsFor === d.name ? resultHtml(lastResult.name, lastResult.r) : ''}
+    ${x.work_order ? `<details class="wo" open><summary>${t('Work order for the technician')}</summary>
+      <pre id="wotext">${esc(tr(x.work_order))}</pre>
+      <button class="btn secondary" id="copywo">${t('Copy work order')}</button> <span class="meta" id="copied" role="status"></span></details>` : ''}
   </section>`;
 }
 
-function tile(k, v, cls = '') { return `<div class="tile ${cls}"><div class="k">${k}</div><div class="v">${esc(v ?? '–')}</div></div>`; }
+function tile(k, v, cls = '') { return `<div class="tile ${cls}"><div class="k">${esc(t(k))}</div><div class="v">${esc(tr(v) ?? '–')}</div></div>`; }
 
 function renderDetail() {
   const d = fleet.find(x => x.name === selected);
   if (!d) return;
-  const s = d.snapshot || {}, t = s.telemetry || {}, dk = s.dock || {}, pl = s.payloads || {};
+  const s = d.snapshot || {}, tel = s.telemetry || {}, dk = s.dock || {}, pl = s.payloads || {};
   const pf = d.preflight || {};
   const temps = Object.values(s.temperatures || {}).filter(x => typeof x === 'number');
   let h = `<div class="row"><div><h2>${esc(d.name)}</h2>
       <div class="meta">${esc(d.site || '')} · ${esc(s.system?.model || '')} ·
-      ${d.mode === 'push' ? 'push uplink' : esc(d.url)} · last report ${d.age_s ?? 0}s ago
-      ${d.backlog ? ' · <b>backfilled from spool</b>' : ''}${s.simulated ? ' · <b>SIMULATED</b>' : ''}
-      ${s.software ? ` · v${esc(s.software.version)} slot ${esc(s.software.boot_slot || '?')}` : ''}
-      ${d.kind === 'heartbeat' ? ' · <b>heartbeat-only (backup link)</b>' : ''}
-      ${d.pending_commands ? ` · <b>${d.pending_commands} command(s) queued</b>` : ''}</div></div>
+      ${d.mode === 'push' ? t('push uplink') : esc(d.url)} · ${t('last report {n}s ago', {n: d.age_s ?? 0})}
+      ${d.backlog ? ` · <b>${t('backfilled from spool')}</b>` : ''}${s.simulated ? ` · <b>${t('SIMULATED')}</b>` : ''}
+      ${s.software ? ` · v${esc(s.software.version)} ${t('slot {s}', {s: esc(s.software.boot_slot || '?')})}` : ''}
+      ${d.kind === 'heartbeat' ? ` · <b>${t('heartbeat-only (backup link)')}</b>` : ''}
+      ${d.pending_commands ? ` · <b>${t('{n} command(s) queued', {n: d.pending_commands})}</b>` : ''}</div></div>
       <span class="badge ${pf.decision}" style="font-size:14px">${pf.decision}</span></div>`;
 
   if (d.dispatch) h += decisionPanel(d);
   if (d.root_causes?.length) {
-    h += '<h3>Likely root cause</h3>' + d.root_causes.map(r => `<div class="rc"><div class="c">${esc(r.cause)}</div>
-      <div class="e">Evidence: ${r.evidence.map(esc).join(' · ')}</div><div>→ ${esc(r.action)}</div></div>`).join('');
+    h += `<h3>${t('Likely root cause')}</h3>` + d.root_causes.map(r => `<div class="rc"><div class="c">${esc(tr(r.cause))}</div>
+      <div class="e">${esc(t('Evidence: {list}', {list: r.evidence.map(tr).join(' · ')}))}</div><div>→ ${esc(tr(r.action))}</div></div>`).join('');
   }
   if (s.system) {
-    h += '<h3>Vehicle</h3><div class="tiles">' +
-      tile('FC heartbeat', t.heartbeat_age_s != null ? t.heartbeat_age_s + ' s' : 'none', (t.heartbeat_age_s ?? 99) > 3 ? 'bad' : '') +
-      tile('Battery', t.battery_voltage != null ? t.battery_voltage + ' V' : null, t.battery_voltage && t.battery_voltage < 14 ? 'bad' : '') +
-      tile('GPS sats / HDOP', t.gps_satellites != null ? `${t.gps_satellites} / ${t.gps_hdop}` : null, (t.gps_fix_type ?? 3) < 3 ? 'bad' : '') +
-      tile('Vibration max', t.vibration ? Math.max(...t.vibration) + ' m/s²' : null, t.vibration && Math.max(...t.vibration) > 30 ? 'bad' : '') +
+    h += `<h3>${t('Vehicle')}</h3><div class="tiles">` +
+      tile('FC heartbeat', tel.heartbeat_age_s != null ? tel.heartbeat_age_s + ' s' : 'none', (tel.heartbeat_age_s ?? 99) > 3 ? 'bad' : '') +
+      tile('Battery', tel.battery_voltage != null ? tel.battery_voltage + ' V' : null, tel.battery_voltage && tel.battery_voltage < 14 ? 'bad' : '') +
+      tile('GPS sats / HDOP', tel.gps_satellites != null ? `${tel.gps_satellites} / ${tel.gps_hdop}` : null, (tel.gps_fix_type ?? 3) < 3 ? 'bad' : '') +
+      tile('Vibration max', tel.vibration ? Math.max(...tel.vibration) + ' m/s²' : null, tel.vibration && Math.max(...tel.vibration) > 30 ? 'bad' : '') +
       tile('CPU', s.cpu?.percent + ' %', s.cpu?.percent > 90 ? 'meh' : '') +
       tile('Memory', s.memory?.percent + ' %', s.memory?.percent > 90 ? 'bad' : '') +
       tile('SoC temp', temps.length ? Math.max(...temps).toFixed(0) + ' °C' : null, Math.max(...temps, 0) > 80 ? 'bad' : '') +
@@ -351,7 +367,7 @@ function renderDetail() {
       '</div>';
   }
   if (dk.available) {
-    h += '<h3>Base station / site</h3><div class="tiles">' +
+    h += `<h3>${t('Base station / site')}</h3><div class="tiles">` +
       tile('Lid', dk.lid_state, dk.lid_state === 'fault' ? 'bad' : '') +
       tile('Charging', dk.charging_state, dk.charging_state === 'fault' ? 'bad' : '') +
       tile('Enclosure', dk.enclosure_temp_c + ' °C', dk.enclosure_temp_c > 45 ? 'bad' : '') +
@@ -362,52 +378,52 @@ function renderDetail() {
   }
   const pls = Object.entries(pl).filter(([, p]) => typeof p === 'object' && !p.error);
   if (pls.length) {
-    h += '<h3>Payloads</h3><div class="tiles">' + pls.map(([n, p]) =>
+    h += `<h3>${t('Payloads')}</h3><div class="tiles">` + pls.map(([n, p]) =>
       tile(`${n} (${p.kind})`, !p.present ? 'missing' : (p.last_frame_s > 5 ? 'frozen' : (p.fps ?? 'ok') + (p.fps != null ? ' fps' : '')),
            !p.present || p.last_frame_s > 5 ? 'bad' : (p.cooldown_complete === false ? 'meh' : ''))).join('') + '</div>';
   }
   if (d.auto_actions?.length) {
-    h += '<h3>Self-healing</h3>' + d.auto_actions.map(a => `<div class="finding info"><div class="t">
-      ${esc(a.action)} ${esc(JSON.stringify(a.params || {}))} → ${esc(a.status)}</div>
-      <div class="d">${esc(a.reason)} · ${new Date(a.ts * 1000).toLocaleTimeString()}
-      ${a.verify ? ' · resolved: ' + (a.verify.resolved.map(esc).join(', ') || 'nothing') : ''}</div></div>`).join('');
+    h += `<h3>${t('Self-healing')}</h3>` + d.auto_actions.map(a => `<div class="finding info"><div class="t">
+      ${esc(act(a.action))} ${esc(JSON.stringify(a.params || {}))} → ${esc(tr(a.status))}</div>
+      <div class="d">${esc(tr(a.reason))} · ${new Date(a.ts * 1000).toLocaleTimeString(I18N.locale())}
+      ${a.verify ? ' · ' + esc(t('resolved: {list}', {list: a.verify.resolved.map(tr).join(', ') || t('nothing')})) : ''}</div></div>`).join('');
   }
   const ROUTE_ORDER = {remote: 0, wait: 1, site: 2};
   const fs = [...d.findings].sort((a, b) =>
     (ROUTE_ORDER[a.runbook?.route] ?? 3) - (ROUTE_ORDER[b.runbook?.route] ?? 3));
   const known = openHowto.has(d.name);
-  h += `<h3>Findings (${fs.length})</h3>` + (fs.length ? fs.map((f, i) => {
+  h += `<h3>${t('Findings ({n})', {n: fs.length})}</h3>` + (fs.length ? fs.map((f, i) => {
     const rb = f.runbook;
     const key = esc(f.title);
     const open = known ? openHowto.get(d.name).has(f.title) : i === 0;
-    const how = rb ? `<details class="howto" data-key="${key}" ${open ? 'open' : ''}><summary>How to fix</summary>
-        <ol>${rb.steps.map(x => `<li>${esc(x)}</li>`).join('')}</ol>
-        ${rb.verify ? `<div class="verify"><b>Fixed when:</b> ${esc(rb.verify)}</div>` : ''}
-        ${ruleFor(d, f) ? `<div class="verify"><b>When to send someone:</b> ${esc(ruleFor(d, f))}</div>` : ''}
+    const how = rb ? `<details class="howto" data-key="${key}" ${open ? 'open' : ''}><summary>${t('How to fix')}</summary>
+        <ol>${rb.steps.map(x => `<li>${esc(tr(x))}</li>`).join('')}</ol>
+        ${rb.verify ? `<div class="verify"><b>${t('Fixed when:')}</b> ${esc(tr(rb.verify))}</div>` : ''}
+        ${ruleFor(d, f) ? `<div class="verify"><b>${t('When to send someone:')}</b> ${esc(ruleFor(d, f))}</div>` : ''}
         ${rb.action ? `<button class="btn fixbtn" data-action="${esc(rb.action.name)}"
-            data-params="${esc(JSON.stringify(rb.action.params))}" data-label="${esc(rb.action.label)}">Fix remotely: ${esc(rb.action.label)}</button>` : ''}
-      </details>` : `<div class="fix">${esc(f.fix)}</div>`;
-    return `<div class="finding ${f.severity}"><div class="t"><span class="sev ${f.severity}">${f.severity}</span>
-      ${rb ? `<span class="route ${rb.route}">${ROUTE_LABEL[rb.route]}</span>` : ''}
-      ${esc(f.component)}: ${esc(f.title)}</div>${f.detail ? `<div class="d">${esc(f.detail)}</div>` : ''}${how}</div>`;
-  }).join('') : '<div class="meta">No problems found.</div>');
+            data-params="${esc(JSON.stringify(rb.action.params))}" data-label="${esc(rb.action.label)}">${esc(t('Fix remotely: {label}', {label: tr(rb.action.label)}))}</button>` : ''}
+      </details>` : `<div class="fix">${esc(tr(f.fix))}</div>`;
+    return `<div class="finding ${f.severity}"><div class="t"><span class="sev ${f.severity}">${t(f.severity)}</span>
+      ${rb ? `<span class="route ${rb.route}">${t(ROUTE_LABEL[rb.route])}</span>` : ''}
+      ${esc(tr(f.component))}: ${esc(tr(f.title))}</div>${f.detail ? `<div class="d">${esc(tr(f.detail))}</div>` : ''}${how}</div>`;
+  }).join('') : `<div class="meta">${t('No problems found.')}</div>`);
 
-  h += `<h3>Debug tools</h3><div class="row">
-    ${window.DEMO_STATIC ? '<span class="meta">Debug bundles download from the installed console.</span>' :
-      d.mode === 'push' ? '<span class="meta">Push-only vehicle: request bundles/logs via the remote-access tunnel (see BLUEPRINT.md).</span>' : `
-    <a href="/api/bundle?drone=${encodeURIComponent(d.name)}"><button class="btn">Download debug bundle</button></a>`}
+  h += `<h3>${t('Debug tools')}</h3><div class="row">
+    ${window.DEMO_STATIC ? `<span class="meta">${t('Debug bundles download from the installed console.')}</span>` :
+      d.mode === 'push' ? `<span class="meta">${t('Push-only vehicle: request bundles/logs via the remote-access tunnel (see BLUEPRINT.md).')}</span>` : `
+    <a href="/api/bundle?drone=${encodeURIComponent(d.name)}"><button class="btn">${t('Download debug bundle')}</button></a>`}
     <select id="unit">${Object.keys(s.systemd || {}).map(u => `<option>${esc(u)}</option>`).join('')}</select>
-    <button class="btn secondary" id="getlogs">View service logs</button>
-    <button class="btn secondary" id="refresh">Re-check now</button></div><div id="logs"></div>`;
+    <button class="btn secondary" id="getlogs">${t('View service logs')}</button>
+    <button class="btn secondary" id="refresh">${t('Re-check now')}</button></div><div id="logs"></div>`;
 
   if (s.simulated && !window.DEMO_STATIC) {
     const active = new Set(s.active_faults || []);
-    h += `<h3>Fault injection (simulator)</h3><div class="faults">` + Object.entries(faults).map(([k, v]) =>
+    h += `<h3>${t('Fault injection (simulator)')}</h3><div class="faults">` + Object.entries(faults).map(([k, v]) =>
       `<label title="${esc(v)}"><input type="checkbox" value="${k}" ${active.has(k) ? 'checked' : ''}>${k}</label>`).join('') +
-      `</div><div class="row" style="margin-top:8px"><button class="btn secondary" id="apply">Apply faults</button></div>`;
+      `</div><div class="row" style="margin-top:8px"><button class="btn secondary" id="apply">${t('Apply faults')}</button></div>`;
   }
-  h += `<h3>Remote actions</h3><div id="actions"><div class="meta">Loading…</div></div>`;
-  h += `<h3>Raw snapshot</h3><details><summary class="meta">Show JSON</summary><pre>${esc(JSON.stringify(s, null, 2))}</pre></details>`;
+  h += `<h3>${t('Remote actions')}</h3><div id="actions"><div class="meta">${t('Loading…')}</div></div>`;
+  h += `<h3>${t('Raw snapshot')}</h3><details><summary class="meta">${t('Show JSON')}</summary><pre>${esc(JSON.stringify(s, null, 2))}</pre></details>`;
   $('#detail').innerHTML = h;
 
   loadActions(d);
@@ -420,14 +436,14 @@ function renderDetail() {
     el.open ? set.add(title) : set.delete(title);
   }));
   document.querySelectorAll('#detail .fixbtn').forEach(btn => btn.onclick = () =>
-    armThenRun(btn, d, btn.dataset.action, JSON.parse(btn.dataset.params), `Fix remotely: ${btn.dataset.label}`));
+    armThenRun(btn, d, btn.dataset.action, JSON.parse(btn.dataset.params), btn.textContent));
   const cw = $('#copywo');
   if (cw) cw.onclick = async () => {
-    try { await navigator.clipboard.writeText($('#wotext').textContent); $('#copied').textContent = 'Copied'; }
+    try { await navigator.clipboard.writeText($('#wotext').textContent); $('#copied').textContent = t('Copied'); }
     catch (e) {
       const r = document.createRange(); r.selectNodeContents($('#wotext'));
       getSelection().removeAllRanges(); getSelection().addRange(r);
-      $('#copied').textContent = 'Selected: press Ctrl+C / Cmd+C';
+      $('#copied').textContent = t('Selected: press Ctrl+C / Cmd+C');
     }
   };
   $('#getlogs').onclick = async () => {
@@ -443,36 +459,37 @@ function renderDetail() {
   };
 }
 
-let lastActionsFor = null, lastResult = '';
+let lastActionsFor = null, lastResult = null;
 const openHowto = new Map();  // vehicle -> titles of open "How to fix" panels
 const ROUTE_LABEL = {remote: 'Fix remotely', wait: 'Wait', site: 'Site visit'};
 
+// Rendered at display time (not stored as HTML) so it follows the language toggle.
 function resultHtml(name, r) {
-  const v = r.verify;
-  if (r.status === 'queued') return `<div class="result"><b>${esc(name)}: queued</b>
-    The vehicle runs it at its next check-in; the result appears here and in the Action log.</div>`;
-  return `<div class="result"><b>${esc(name)}: ${esc(r.status)}</b> ${esc(r.error || r.output || '')}
-    ${v ? `<div>✅ Resolved: ${v.resolved.map(esc).join(', ') || 'none'}</div>
-           <div>⏳ Still present: ${v.remaining.map(esc).join(', ') || 'none'}</div>
-           ${v.new.length ? `<div>⚠ New: ${v.new.map(esc).join(', ')}</div>` : ''}
-           ${!v.resolved.length ? '<div><b>Didn\'t fix it.</b> Follow the next step in the runbook.</div>' : ''}` : ''}</div>`;
+  const v = r.verify, list = xs => esc(xs.map(tr).join(', ') || t('none'));
+  if (r.status === 'queued') return `<div class="result"><b>${esc(t('{name}: queued', {name: act(name)}))}</b>
+    ${t('The vehicle runs it at its next check-in; the result appears here and in the Action log.')}</div>`;
+  return `<div class="result"><b>${esc(act(name))}: ${esc(tr(r.status))}</b> ${esc(tr(r.error || r.output || ''))}
+    ${v ? `<div>${t('✅ Resolved: {list}', {list: list(v.resolved)})}</div>
+           <div>${t('⏳ Still present: {list}', {list: list(v.remaining)})}</div>
+           ${v.new.length ? `<div>${t('⚠ New: {list}', {list: list(v.new)})}</div>` : ''}
+           ${!v.resolved.length ? `<div><b>${t('Didn\'t fix it.')}</b> ${t('Follow the next step in the runbook.')}</div>` : ''}` : ''}</div>`;
 }
 
 // Two-step confirm (the viewer blocks confirm()): first click arms, second runs.
 async function armThenRun(btn, d, name, params, label) {
   if (!btn.classList.contains('confirm')) {
     document.querySelectorAll('#detail button.confirm').forEach(b => {
-      b.classList.remove('confirm'); b.textContent = b.dataset.idle || 'Run'; });
+      b.classList.remove('confirm'); b.textContent = b.dataset.idle || t('Run'); });
     btn.dataset.idle = label;
-    btn.classList.add('confirm'); btn.textContent = `Confirm on ${d.name}`;
+    btn.classList.add('confirm'); btn.textContent = t('Confirm on {v}', {v: d.name});
     return;
   }
-  btn.disabled = true; btn.textContent = 'Running…';
+  btn.disabled = true; btn.textContent = t('Running…');
   const r = await (await fetch('/api/action', {method: 'POST', body: JSON.stringify({
     drone: d.name, action: name, params, ticket: $('#ticket')?.value || '', reason: $('#reason')?.value || ''})})).json();
   btn.classList.remove('confirm');  // or the refresh guard would keep skipping
   lastActionsFor = d.name;
-  lastResult = resultHtml(name, r);
+  lastResult = {name, r};
   await load();
   $('#detail').scrollIntoView({behavior: 'smooth', block: 'start'});
 }
@@ -480,39 +497,40 @@ async function loadActions(d) {
   const box = $('#actions');
   let cat;
   try { cat = await (await fetch('/api/actions?drone=' + encodeURIComponent(d.name))).json(); }
-  catch (e) { box.innerHTML = '<div class="meta">Unavailable</div>'; return; }
-  if (!cat.enabled) { box.innerHTML = `<div class="meta">${esc(cat.error || 'Remote actions are disabled on this vehicle (no action_secret).')}</div>`; return; }
+  catch (e) { box.innerHTML = `<div class="meta">${t('Unavailable')}</div>`; return; }
+  if (!cat.enabled) { box.innerHTML = `<div class="meta">${esc(tr(cat.error) || t('Remote actions are disabled on this vehicle (no action_secret).'))}</div>`; return; }
   // Failed units first, so the default choice is the one that needs restarting.
   const sd = d.snapshot?.systemd || {};
   const units = Object.keys(sd).sort((a, b) => (sd[a] === 'active') - (sd[b] === 'active'));
-  box.innerHTML = (cat.cached ? '<div class="meta">Push vehicle: the action is queued and runs at its next check-in (expires after 5 min).</div>' : '') +
+  box.innerHTML = (cat.cached ? `<div class="meta">${t('Push vehicle: the action is queued and runs at its next check-in (expires after 5 min).')}</div>` : '') +
     cat.actions.map(a => {
-      const pre = a.preconditions.map(p => `<span class="pre ${p.ok ? 'ok' : 'no'}" title="${esc(p.detail)}">${esc(p.name)}</span>`).join('');
+      const pre = a.preconditions.map(p => `<span class="pre ${p.ok ? 'ok' : 'no'}" title="${esc(tr(p.detail))}">${esc(tr(p.name))}</span>`).join('');
       const blocked = a.preconditions.some(p => !p.ok);
       const param = a.name === 'restart_service' ? `<select data-p="unit">${(units.length ? units : ['mission.service']).map(u => `<option>${esc(u)}</option>`).join('')}</select>`
         : a.name === 'vacuum_journal' ? `<input class="txt" data-p="max_size" value="200M">` : '';
       return `<div class="action" data-a="${esc(a.name)}"><span class="n">${esc(a.name)}</span>
-        <span class="desc">${esc(a.description)}<br>${pre}</span>${param}
-        <button class="btn ${blocked ? 'secondary' : ''}" ${blocked ? 'disabled title="Precondition failed"' : ''}>Run</button></div>`;
+        <span class="desc">${esc(tr(a.description))}<br>${pre}</span>${param}
+        <button class="btn ${blocked ? 'secondary' : ''}" ${blocked ? `disabled title="${t('Precondition failed')}"` : ''}>${t('Run')}</button></div>`;
     }).join('') +
-    `<div class="row" style="margin-top:8px"><input class="txt" id="ticket" placeholder="Ticket (e.g. OPS-123)">
-     <input class="txt" id="reason" placeholder="Reason" style="flex:1;min-width:160px"></div>
+    `<div class="row" style="margin-top:8px"><input class="txt" id="ticket" placeholder="${t('Ticket (e.g. OPS-123)')}">
+     <input class="txt" id="reason" placeholder="${t('Reason')}" style="flex:1;min-width:160px"></div>
      `;
   box.querySelectorAll('.action button').forEach(btn => btn.onclick = () => {
     const row = btn.closest('.action'), params = {};
     row.querySelectorAll('[data-p]').forEach(i => params[i.dataset.p] = i.value);
-    armThenRun(btn, d, row.dataset.a, params, 'Run');
+    armThenRun(btn, d, row.dataset.a, params, t('Run'));
   });
 }
 
 async function loadAudit() {
   const rows = await (await fetch('/api/audit')).json();
-  $('#auditlog').innerHTML = rows.length ? '<table><tr><th>Time</th><th>Vehicle</th><th>Action</th><th>Operator</th><th>Ticket / reason</th><th>Result</th></tr>' +
-    rows.map(r => `<tr><td>${new Date(r.ts * 1000).toLocaleString()}</td><td>${esc(r.vehicle)}</td>
-      <td>${esc(r.action)} <span class="meta">${esc(JSON.stringify(r.params || {}))}</span></td><td>${esc(r.operator)}</td>
-      <td>${esc(r.ticket)} ${esc(r.reason)}</td><td><span class="sev ${r.ok || r.status === 'queued' ? 'info' : 'critical'}">${esc(r.status)}</span>
-      ${esc(r.error || '')} ${r.verify ? `<span class="meta">resolved ${r.verify.resolved.length}</span>` : ''} <span class="meta">${esc(r.via || '')}</span></td></tr>`).join('') + '</table>'
-    : '<div class="empty">No actions yet</div>';
+  const th = ['Time', 'Vehicle', 'Action', 'Operator', 'Ticket / reason', 'Result'].map(x => `<th>${t(x)}</th>`).join('');
+  $('#auditlog').innerHTML = rows.length ? `<table><tr>${th}</tr>` +
+    rows.map(r => `<tr><td>${new Date(r.ts * 1000).toLocaleString(I18N.locale())}</td><td>${esc(r.vehicle)}</td>
+      <td>${esc(act(r.action))} <span class="meta">${esc(JSON.stringify(r.params || {}))}</span></td><td>${esc(r.operator)}</td>
+      <td>${esc(r.ticket)} ${esc(tr(r.reason))}</td><td><span class="sev ${r.ok || r.status === 'queued' ? 'info' : 'critical'}">${esc(tr(r.status))}</span>
+      ${esc(tr(r.error || ''))} ${r.verify ? `<span class="meta">${t('resolved {n}', {n: r.verify.resolved.length})}</span>` : ''} <span class="meta">${esc(tr(r.via || ''))}</span></td></tr>`).join('') + '</table>'
+    : `<div class="empty">${t('No actions yet')}</div>`;
 }
 
 async function loadHistory() {
@@ -520,37 +538,38 @@ async function loadHistory() {
   const rs = h.resolution || {auto: 0, remote: 0, technician: 0};
   const tot = Math.max(1, rs.auto + rs.remote + rs.technician);
   const pct = v => Math.round(100 * v / tot);
-  $('#resolution').innerHTML = `<div class="resbar" role="img" aria-label="Resolution split">
+  $('#resolution').innerHTML = `<div class="resbar" role="img" aria-label="${t('Resolution split')}">
       <span style="width:${pct(rs.auto)}%;background:var(--ok)"></span>
       <span style="width:${pct(rs.remote)}%;background:var(--info)"></span>
       <span style="width:${pct(rs.technician)}%;background:var(--crit)"></span></div>
     <div class="reslegend">
-      <span><i style="background:var(--ok)"></i><b>${rs.auto}</b> fixed by the vehicle itself (${pct(rs.auto)}%)</span>
-      <span><i style="background:var(--info)"></i><b>${rs.remote}</b> fixed remotely by an operator (${pct(rs.remote)}%)</span>
-      <span><i style="background:var(--crit)"></i><b>${rs.technician}</b> needed a technician (${pct(rs.technician)}%)</span></div>
-    ${h.simulated ? '<div class="meta">Simulated week for the demo.</div>' : ''}`;
+      <span><i style="background:var(--ok)"></i><b>${rs.auto}</b> ${t('fixed by the vehicle itself ({p}%)', {p: pct(rs.auto)})}</span>
+      <span><i style="background:var(--info)"></i><b>${rs.remote}</b> ${t('fixed remotely by an operator ({p}%)', {p: pct(rs.remote)})}</span>
+      <span><i style="background:var(--crit)"></i><b>${rs.technician}</b> ${t('needed a technician ({p}%)', {p: pct(rs.technician)})}</span></div>
+    ${h.simulated ? `<div class="meta">${t('Simulated week for the demo.')}</div>` : ''}`;
   const pol = h.policy || {};
   const lim = pol.wait_limit_h || {};
   const name = {gps: 'GPS', estimator: 'Position estimate', thermal: 'Overheating', power: 'Battery / power',
                 payload: 'Camera warming up', link: 'Vehicle not reporting', 'flight-controller': 'Flight controller sensor',
                 weather: 'Weather', default: 'Anything else'};
-  $('#policy').innerHTML = `<table><tr><th>Kind of problem</th><th>What happens first</th><th>Send a technician when…</th></tr>
-    <tr><td>Connectivity, software, settings someone changed</td><td>The vehicle fixes it itself, step by step (restart, reconnect, switch SIM, restore settings, roll back)</td><td>Every automatic step was tried and it's still broken</td></tr>
-    <tr><td>Has a remote fix (e.g. restart, reboot)</td><td>An operator runs the fix from this dashboard</td><td>The fix was tried <b>${pol.max_remote_attempts ?? 2}</b> times and the problem is still there</td></tr>
-    ${Object.entries(lim).map(([k, v]) => `<tr><td>${esc(name[k] || k)}</td><td>Wait: it usually clears by itself</td>
-      <td>${v == null ? 'Never: hold missions until it passes' : `It lasts longer than <b>${fmtH(v)}</b>`}</td></tr>`).join('')}
-    <tr><td>Physical damage, urgent (props, dock lid, charging, parachute)</td><td>No remote fix exists</td><td><b>Right away</b></td></tr>
-    <tr><td>Physical, not urgent</td><td>No remote fix exists</td><td>Within <b>${fmtH(pol.site_warning_within_h ?? 72)}</b> (next scheduled visit)</td></tr></table>
-    <div class="meta">Thresholds are set in the console config under <code>dispatch_policy</code>.</div>`;
+  $('#policy').innerHTML = `<table><tr><th>${t('Kind of problem')}</th><th>${t('What happens first')}</th><th>${t('Send a technician when…')}</th></tr>
+    <tr><td>${t('Connectivity, software, settings someone changed')}</td><td>${t('The vehicle fixes it itself, step by step (restart, reconnect, switch SIM, restore settings, roll back)')}</td><td>${t('Every automatic step was tried and it\'s still broken')}</td></tr>
+    <tr><td>${t('Has a remote fix (e.g. restart, reboot)')}</td><td>${t('An operator runs the fix from this dashboard')}</td><td>${t('The fix was tried {n} times and the problem is still there', {n: `<b>${pol.max_remote_attempts ?? 2}</b>`})}</td></tr>
+    ${Object.entries(lim).map(([k, v]) => `<tr><td>${esc(t(name[k] || k))}</td><td>${t('Wait: it usually clears by itself')}</td>
+      <td>${v == null ? t('Never: hold missions until it passes') : t('It lasts longer than {h}', {h: `<b>${fmtH(v)}</b>`})}</td></tr>`).join('')}
+    <tr><td>${t('Physical damage, urgent (props, dock lid, charging, parachute)')}</td><td>${t('No remote fix exists')}</td><td><b>${t('Right away')}</b></td></tr>
+    <tr><td>${t('Physical, not urgent')}</td><td>${t('No remote fix exists')}</td><td>${t('Within {h} (next scheduled visit)', {h: `<b>${fmtH(pol.site_warning_within_h ?? 72)}</b>`})}</td></tr></table>
+    <div class="meta">${t('Thresholds are set in the console config under {code}.', {code: '<code>dispatch_policy</code>'})}</div>`;
   $('#avail').innerHTML = '<table>' + Object.entries(h.availability).sort().map(([d, p]) =>
     `<tr><td>${esc(d)}</td><td style="width:50%"><div class="bar" style="width:${p}%;background:${p > 90 ? 'var(--ok)' : p > 50 ? 'var(--warn)' : 'var(--crit)'}"></div></td><td>${p}%</td></tr>`).join('') + '</table>';
   const max = Math.max(1, ...Object.values(h.by_component));
   $('#bycomp').innerHTML = '<table>' + Object.entries(h.by_component).map(([c, n]) =>
-    `<tr><td>${esc(c)}</td><td style="width:50%"><div class="bar" style="width:${100 * n / max}%"></div></td><td>${n}</td></tr>`).join('') + '</table>';
-  $('#recurring').innerHTML = h.recurring.length ? '<table><tr><th>Vehicle</th><th>Problem</th><th>Seen</th><th>First seen</th></tr>' +
-    h.recurring.map(r => `<tr><td>${esc(r.drone)}</td><td><span class="sev ${r.severity}">${r.severity}</span>${esc(r.title)}</td>
-      <td>${r.count}×</td><td>${new Date(r.first_seen * 1000).toLocaleString()}</td></tr>`).join('') + '</table>'
-    : '<div class="empty">No history yet</div>';
+    `<tr><td>${esc(tr(c))}</td><td style="width:50%"><div class="bar" style="width:${100 * n / max}%"></div></td><td>${n}</td></tr>`).join('') + '</table>';
+  const rth = ['Vehicle', 'Problem', 'Seen', 'First seen'].map(x => `<th>${t(x)}</th>`).join('');
+  $('#recurring').innerHTML = h.recurring.length ? `<table><tr>${rth}</tr>` +
+    h.recurring.map(r => `<tr><td>${esc(r.drone)}</td><td><span class="sev ${r.severity}">${t(r.severity)}</span> ${esc(tr(r.title))}</td>
+      <td>${r.count}×</td><td>${new Date(r.first_seen * 1000).toLocaleString(I18N.locale())}</td></tr>`).join('') + '</table>'
+    : `<div class="empty">${t('No history yet')}</div>`;
 }
 
 $('#logfile').onchange = async e => analyzeText(await e.target.files[0].text());
@@ -559,8 +578,9 @@ if (window.DEMO_SAMPLE_CSV) {
   $('#samplelog').onclick = () => analyzeText(window.DEMO_SAMPLE_CSV);
 }
 async function analyzeText(text) {
+  lastLogText = text;
   const r = await (await fetch('/api/analyze-log', {method: 'POST', body: text})).json();
-  if (r.error) { $('#logresult').innerHTML = `<p class="sev critical">${esc(r.error)}</p>`; return; }
+  if (r.error) { $('#logresult').innerHTML = `<p class="sev critical">${esc(tr(r.error))}</p>`; return; }
   const rows = text.trim().split('\n'); const hdr = rows[0].split(',');
   const idx = f => hdr.indexOf(f);
   const data = rows.slice(1).map(l => l.split(','));
@@ -576,15 +596,35 @@ async function analyzeText(text) {
       <polyline fill="none" stroke="${color}" stroke-width="1.5" vector-effect="non-scaling-stroke" points="${pts}"/></svg>`;
   };
   const crit = r.timeline.filter(m => m.critical);
-  $('#logresult').innerHTML = `<h3>${esc(r.summary)}</h3>` +
-    crit.map(m => `<div class="rc"><div class="c">t=${m.time_s}s · ${esc(m.text)}</div>
-      ${m.preceded_by?.length ? `<div>Preceded by: ${m.preceded_by.map(esc).join(', ')}</div>` : ''}</div>`).join('') +
+  $('#logresult').innerHTML = `<h3>${esc(tr(r.summary))}</h3>` +
+    crit.map(m => `<div class="rc"><div class="c">t=${m.time_s}s · ${esc(tr(m.text))}</div>
+      ${m.preceded_by?.length ? `<div>${esc(t('Preceded by: {list}', {list: m.preceded_by.map(tr).join(', ')}))}</div>` : ''}</div>`).join('') +
     ['vibration_z', 'gps_satellites', 'ekf_pos_variance', 'battery_voltage', 'altitude_m', 'soc_temp_c']
       .map(f => lane(f, 'var(--accent)')).join('') +
-    '<h3>Events</h3><table><tr><th>Start</th><th>Duration</th><th>Event</th><th>Worst</th></tr>' +
-    r.events.map(e => `<tr><td>${e.start_s}s</td><td>${e.duration_s}s</td><td><span class="sev ${e.severity}">${e.severity}</span>${esc(e.title)}</td>
-      <td>${e.worst} (limit ${e.threshold})</td></tr>`).join('') + '</table>';
+    `<h3>${t('Events')}</h3><table><tr>${['Start', 'Duration', 'Event', 'Worst'].map(x => `<th>${t(x)}</th>`).join('')}</tr>` +
+    r.events.map(e => `<tr><td>${e.start_s}s</td><td>${e.duration_s}s</td><td><span class="sev ${e.severity}">${t(e.severity)}</span> ${esc(tr(e.title))}</td>
+      <td>${t('{w} (limit {l})', {w: e.worst, l: e.threshold})}</td></tr>`).join('') + '</table>';
 }
+
+// Language: static labels carry data-i18n (their English text is the key);
+// everything else re-renders from data, so switching is instant.
+document.querySelectorAll('[data-i18n]').forEach(el => { el.dataset.i18n = el.dataset.i18n || el.textContent.trim(); });
+function applyLang() {
+  document.documentElement.lang = I18N.lang;
+  document.title = t('Autonomous Fleet Debugger');
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('.langs button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === I18N.lang)));
+}
+document.querySelectorAll('.langs button').forEach(b => b.onclick = () => {
+  I18N.set(b.dataset.lang); applyLang();
+  renderList(); if (selected) renderDetail();
+  const tab = document.querySelector('nav button.active')?.dataset.tab;
+  if (tab === 'history') loadHistory();
+  if (tab === 'audit') loadAudit();
+  if (lastLogText) analyzeText(lastLogText);
+  load();
+});
+applyLang();
 
 fetch('/api/faults').then(r => r.json()).then(f => faults = f);
 load(); setInterval(load, 5000);

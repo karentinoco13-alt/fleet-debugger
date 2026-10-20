@@ -221,8 +221,11 @@ def synth_history(specs):
     return out
 
 
-def render_blueprint():
-    with open(os.path.join(ROOT, "BLUEPRINT.md")) as f:
+def render_blueprint(name="BLUEPRINT.md"):
+    path = os.path.join(ROOT, name)
+    if not os.path.exists(path):
+        return ""
+    with open(path) as f:
         text = f.read()
     try:
         import markdown
@@ -253,6 +256,8 @@ def main(out, standalone=False):
         page = f.read()
     with open(os.path.join(ROOT, "tools", "demo_shim.js")) as f:
         shim = f.read()
+    with open(os.path.join(ROOT, "fleetdebug", "static", "i18n.js")) as f:
+        i18n = f.read()
 
     head = page[page.index("<title>"):page.index("</head>")]
     body = page[page.index("<body>") + len("<body>"):page.index("</body>")]
@@ -260,20 +265,31 @@ def main(out, standalone=False):
     def js_json(obj):
         return json.dumps(obj, default=str, separators=(",", ":")).replace("</", "<\\/")
 
-    body = body.replace('<button data-tab="audit">Action log</button>',
-                        '<button data-tab="audit">Action log</button>\n'
-                        '    <button data-tab="blueprint">Blueprint</button>')
-    banner = ('<div class="demo-note" role="note"><b>Interactive demo with a simulated fleet.</b> '
-              'Vehicles fix connectivity and settings problems by themselves; drone-05 and '
-              'rover-02 are doing it right now (watch for about 30 s). Each vehicle says in '
-              'plain words whether to wait, fix it remotely, or send a technician. All results '
-              'come from the real rules engine and action runner.'
-              + (' <a href="index.html">About this project</a>' if standalone else '') + '</div>')
+    body = body.replace('<script src="i18n.js"></script>', f"<script>\n{i18n}\n</script>", 1)
+    body = body.replace('<button data-tab="audit" data-i18n>Action log</button>',
+                        '<button data-tab="audit" data-i18n>Action log</button>\n'
+                        '    <button data-tab="blueprint" data-i18n>Blueprint</button>')
+    about_en = ' <a href="index.html">About this project</a>' if standalone else ''
+    about_es = ' <a href="index.html">Sobre este proyecto</a>' if standalone else ''
+    banner = ('<div class="demo-note" role="note"><span class="l-en"><b>Interactive demo with a '
+              'simulated fleet.</b> Vehicles fix connectivity and settings problems by themselves; '
+              'drone-05 and rover-02 are doing it right now (watch for about 30 s). Each vehicle '
+              'says in plain words whether to wait, fix it remotely, or send a technician. All '
+              'results come from the real rules engine and action runner.' + about_en + '</span>'
+              '<span class="l-es"><b>Demostración interactiva con una flota simulada.</b> Los '
+              'vehículos reparan solos los problemas de conectividad y configuración; drone-05 y '
+              'rover-02 lo están haciendo ahora mismo (observe unos 30 s). Cada vehículo indica '
+              'en palabras simples si hay que esperar, solucionarlo a distancia o enviar un '
+              'técnico. Todos los resultados provienen del motor de reglas y del ejecutor de '
+              'acciones reales.' + about_es + '</span></div>')
     body = body.replace("<main>", "<main>\n  " + banner, 1)
+    blueprint_es = render_blueprint("BLUEPRINT.es.md")
     body = body.replace("</main>", '  <section id="tab-blueprint" class="hidden">\n'
-                        '    <article class="card prose">' + render_blueprint() +
-                        "</article>\n  </section>\n</main>", 1)
+                        '    <article class="card prose"><div class="l-en">' + render_blueprint() +
+                        '</div><div class="l-es">' + (blueprint_es or render_blueprint()) +
+                        "</div></article>\n  </section>\n</main>", 1)
     extra_css = """<style>
+html[lang="es"] .l-en, html:not([lang="es"]) .l-es { display: none; }
 .demo-note { background: var(--info-bg); color: var(--ink); border-radius: 10px; padding: 10px 14px;
              margin-bottom: 12px; font-size: 13px; }
 .prose { max-width: 920px; margin: 0 auto; padding: 20px clamp(16px, 4vw, 40px); line-height: 1.6; }

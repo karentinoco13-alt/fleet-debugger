@@ -94,6 +94,10 @@ The thresholds live in the console config:
 }
 ```
 
+## Languages
+
+The console, the demo, the case study and the blueprint are available in English and Spanish. Use the **EN | ES** switch in the header. The choice is remembered, and Spanish-language browsers start in Spanish. Translations live in `fleetdebug/static/i18n.js` and the blueprint in `BLUEPRINT.es.md`. `tests/test_i18n.py` fails if any engine message is missing a Spanish translation.
+
 ## Console users
 ```bash
 python3 -m fleetdebug hash-password      # paste the result into "users" in the console config
