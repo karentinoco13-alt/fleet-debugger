@@ -8,6 +8,7 @@
 // A phrase with no entry is shown in English rather than guessed.
 window.I18N = (() => {
   const EXACT = {
+    '© 2026 Karen Tinoco. All rights reserved. Free to view and learn from; commercial use requires written permission.': '© 2026 Karen Tinoco. Todos los derechos reservados. Puede consultarlo y aprender de él; el uso comercial requiere permiso por escrito.',
     // ---- app chrome
     'Autonomous Fleet Debugger': 'Depurador de Flota Autónoma',
     'Fleet': 'Flota', 'Trends': 'Tendencias', 'Flight log': 'Registro de vuelo',

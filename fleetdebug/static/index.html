@@ -46,6 +46,7 @@ nav button { background: none; border: 0; color: var(--muted); font: inherit; pa
              border-radius: 6px; cursor: pointer; }
 nav button.active { background: var(--info-bg); color: var(--accent); font-weight: 600; }
 .summary { margin-left: auto; display: flex; flex-wrap: wrap; gap: 6px 10px; color: var(--muted); min-width: 0; }
+.copyright { text-align: center; color: var(--muted); font-size: 12px; padding: 8px 16px 24px; margin: 0; }
 main { padding-block: 16px; max-width: 1400px; margin: 0 auto;
        padding-left: max(16px, env(safe-area-inset-left, 0px));
        padding-right: max(16px, env(safe-area-inset-right, 0px)); }
@@ -211,6 +212,7 @@ input.txt { font: inherit; color: var(--ink); background: var(--panel); border: 
     </div>
   </section>
 </main>
+<footer><p class="copyright" data-i18n>© 2026 Karen Tinoco. All rights reserved. Free to view and learn from; commercial use requires written permission.</p></footer>
 <script src="i18n.js"></script>
 <script>
 let fleet = [], selected = null, faults = {}, lastLogText = null;

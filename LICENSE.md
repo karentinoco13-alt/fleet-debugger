@@ -1,5 +1,7 @@
 # PolyForm Noncommercial License 1.0.0
 
+Copyright (c) 2026 Karen Tinoco (https://www.thehumanelement.live). All rights reserved except as granted below.
+
 <https://polyformproject.org/licenses/noncommercial/1.0.0>
 
 ## Acceptance
