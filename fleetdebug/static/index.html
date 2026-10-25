@@ -15,6 +15,7 @@
   --ok: #1d7f4a; --warn: #a86400; --crit: #c0302b; --info: #0e6a85; --accent: #0e6a85;
   --ok-bg: #e4f3ea; --warn-bg: #fdf1df; --crit-bg: #fbe8e6; --info-bg: #e2f1f5;
   --on-accent: #ffffff;
+  --navy: #0f2742; --navy-2: #1b3b60; --on-navy: #ffffff; --on-navy-muted: #a9bdd4; --signal: #f2b632; --on-signal: #0f2742;
   --font-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-data: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
@@ -23,6 +24,7 @@
     --bg: #0e1418; --panel: #151d22; --ink: #e3e9ec; --muted: #93a3ad; --line: #26323a;
     --ok: #4cc283; --warn: #f0a640; --crit: #ff7069; --info: #5cc3e0; --accent: #5cc3e0;
     --ok-bg: #12291d; --warn-bg: #2e2310; --crit-bg: #341918; --info-bg: #12303a;
+    --navy: #0a1a2e; --navy-2: #15304f; --on-navy: #e8eef5; --on-navy-muted: #9aabc0; --signal: #f2b632; --on-signal: #0a1a2e;
     --on-accent: #0b1418; color-scheme: dark;
   }
 }
@@ -30,6 +32,7 @@
   --bg: #0e1418; --panel: #151d22; --ink: #e3e9ec; --muted: #93a3ad; --line: #26323a;
   --ok: #4cc283; --warn: #f0a640; --crit: #ff7069; --info: #5cc3e0; --accent: #5cc3e0;
   --ok-bg: #12291d; --warn-bg: #2e2310; --crit-bg: #341918; --info-bg: #12303a;
+  --navy: #0a1a2e; --navy-2: #15304f; --on-navy: #e8eef5; --on-navy-muted: #9aabc0; --signal: #f2b632; --on-signal: #0a1a2e;
   --on-accent: #0b1418; color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -162,10 +165,45 @@ details.howto .verify { font-size: 13px; color: var(--muted); margin-bottom: 8px
 input.txt { font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--line);
             border-radius: 6px; padding: 5px 8px; width: 130px; }
 .scroll { overflow-x: auto; }
+
+/* Color: navy mission-control band with a signal-amber beacon, status dots that glow,
+   and decision panels tinted by what they ask the operator to do. */
+header { background: var(--navy); color: var(--on-navy); border-bottom: 3px solid var(--signal); }
+header h1 { font-size: 17px; color: var(--on-navy); letter-spacing: .01em; }
+.logo { width: 30px; height: 30px; flex: none; margin-right: -6px; }
+nav button { color: var(--on-navy-muted); font-weight: 600; }
+nav button:hover { color: var(--on-navy); background: var(--navy-2); }
+nav button.active { background: var(--signal); color: var(--on-signal); }
+header .summary .chip { box-shadow: 0 0 0 1px rgb(255 255 255 / .08); }
+header .langs { border-color: var(--navy-2); background: var(--navy-2); }
+header .langs button { color: var(--on-navy-muted); }
+header .langs button[aria-pressed="true"] { background: var(--signal); color: var(--on-signal); }
+header :focus-visible { outline-color: var(--signal); }
+.site { color: var(--accent); font-weight: 700; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+.dot.ok { box-shadow: 0 0 0 3px var(--ok-bg); }
+.dot.warning { box-shadow: 0 0 0 3px var(--warn-bg); }
+.dot.critical, .dot.unreachable { box-shadow: 0 0 0 3px var(--crit-bg); }
+@media (prefers-reduced-motion: no-preference) {
+  .dot.critical, .dot.unreachable { animation: beacon 1.6s ease-in-out infinite; }
+  @keyframes beacon { 50% { box-shadow: 0 0 0 6px var(--crit-bg); } }
+}
+.drone.sel { box-shadow: inset 4px 0 0 var(--accent); }
+.decision.crit { background: linear-gradient(180deg, var(--crit-bg), var(--panel) 140px); }
+.decision.warn { background: linear-gradient(180deg, var(--warn-bg), var(--panel) 140px); }
+.decision.info { background: linear-gradient(180deg, var(--info-bg), var(--panel) 140px); }
+.decision.ok { background: linear-gradient(180deg, var(--ok-bg), var(--panel) 140px); }
+.step .mark { box-shadow: 0 0 0 1px currentColor; }
+h3 { color: var(--accent); }
+.tile { background: var(--bg); border-color: transparent; }
+.tile .v { color: var(--ink); }
+.tile.bad { background: var(--crit-bg); } .tile.meh { background: var(--warn-bg); }
+footer { background: var(--navy); border-top: 3px solid var(--signal); margin-top: 8px; }
+footer .copyright { color: var(--on-navy-muted); padding: 14px 16px; }
 </style>
 </head>
 <body>
 <header>
+<svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13" fill="none" stroke="var(--signal)" stroke-width="2"/><circle cx="16" cy="16" r="7" fill="none" stroke="var(--on-navy-muted)" stroke-width="1.5" stroke-dasharray="3 3"/><path d="M16 16 L26 9" stroke="var(--signal)" stroke-width="2" stroke-linecap="round"/><circle cx="22.5" cy="11.5" r="2.2" fill="var(--signal)"/><circle cx="16" cy="16" r="1.8" fill="var(--on-navy)"/></svg>
   <h1 data-i18n>Autonomous Fleet Debugger</h1>
   <nav>
     <button data-tab="fleet" class="active" data-i18n>Fleet</button>
