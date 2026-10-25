@@ -8,6 +8,7 @@
 // A phrase with no entry is shown in English rather than guessed.
 window.I18N = (() => {
   const EXACT = {
+    'Privacy': 'Privacidad', 'Close': 'Cerrar',
     '© 2026 Karen Tinoco. Licensed under PolyForm Noncommercial 1.0.0: free to use, share and adapt for non-commercial purposes, with credit. Commercial use by permission only.': '© 2026 Karen Tinoco. Licencia PolyForm Noncommercial 1.0.0: libre para usar, compartir y adaptar con fines no comerciales, dando crédito. Uso comercial solo con permiso.',
     // ---- app chrome
     'Autonomous Fleet Debugger': 'Depurador de Flota Autónoma',

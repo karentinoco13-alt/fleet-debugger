@@ -98,6 +98,10 @@ The thresholds live in the console config:
 
 The console, the demo, the case study and the blueprint are available in English and Spanish. Use the **EN | ES** switch in the header. The choice is remembered, and Spanish-language browsers start in Spanish. Translations live in `fleetdebug/static/i18n.js` and the blueprint in `BLUEPRINT.es.md`. `tests/test_i18n.py` fails if any engine message is missing a Spanish translation.
 
+## Privacy and security
+
+The **Privacy** button in the console header explains, in English and Spanish, where data goes. In the demo, everything runs in the browser with simulated vehicles, and only the language choice is saved. In a real deployment, data stays on the company's own console server. Remote actions are allow-listed, HMAC-signed, expiring and replay-protected, and every action is audited. Put the console behind a VPN or HTTPS and turn on operator sign-in.
+
 ## Console users
 ```bash
 python3 -m fleetdebug hash-password      # paste the result into "users" in the console config
