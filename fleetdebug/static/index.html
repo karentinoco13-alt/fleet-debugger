@@ -219,6 +219,30 @@ dialog.priv::backdrop { background: rgb(10 26 46 / .6); }
 .priv .now { background: var(--info-bg); border-radius: 8px; padding: 10px 14px; margin: 0; }
 .priv .kicker { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 26px 0 0; }
 .priv form { display: flex; justify-content: flex-end; margin-top: 20px; }
+
+/* delete warnings, disclaimer, feedback */
+.waiver { flex-basis: 100%; background: var(--crit-bg); border: 1px solid var(--crit); border-radius: 8px;
+          padding: 10px 12px; margin-top: 6px; font-size: 13px; display: grid; gap: 8px; }
+.waiver b { color: var(--crit); }
+.waiver label { display: flex; gap: 8px; align-items: flex-start; }
+.waiver input { margin-top: 3px; flex: none; }
+.waiver .row button { font-size: 13px; }
+.disclaim { font-size: 12px; color: var(--muted); margin-top: 12px !important; border-top: 1px solid var(--line); padding-top: 8px; }
+.fb label { display: grid; gap: 4px; font-weight: 600; font-size: 14px; margin-top: 12px; }
+.fb fieldset { border: 0; padding: 0; margin: 12px 0 0; }
+.fb legend { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+.fb .types { display: flex; flex-wrap: wrap; gap: 6px; }
+.fb .types label { display: inline-flex; gap: 6px; align-items: center; font-weight: 400; margin: 0;
+                   border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; }
+.fb .types label:has(input:checked) { background: var(--info-bg); border-color: var(--accent); }
+.fb textarea, .fb input[type=text], .fb select { font: inherit; font-weight: 400; color: var(--ink); background: var(--panel);
+             border: 1px solid var(--line); border-radius: 6px; padding: 8px; width: 100%; }
+.fb textarea { min-height: 110px; resize: vertical; }
+.fb .send { display: grid; gap: 8px; background: var(--ok-bg); border-radius: 8px; padding: 12px 14px; margin-top: 14px; }
+.priv.fb form { display: block; margin-top: 0; }
+.fb .send .row a { text-decoration: none; }
+.fb a.gh { background: var(--accent); color: var(--on-accent); border-radius: 6px; padding: 7px 12px; font-weight: 600; }
+.fb .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
 </style>
 </head>
 <body>
@@ -237,6 +261,7 @@ dialog.priv::backdrop { background: rgb(10 26 46 / .6); }
     <button type="button" data-lang="es" lang="es" title="Español">ES</button>
   </div>
   <button type="button" class="privbtn" id="privacyBtn"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1 2.5 3v4.2c0 3.4 2.3 6.3 5.5 7.3 3.2-1 5.5-3.9 5.5-7.3V3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span data-i18n>Privacy</span></button>
+  <button type="button" class="privbtn" id="feedbackBtn"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3h11v7.5H7L4 13v-2.5H2.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span data-i18n>Feedback</span></button>
 </header>
 <main>
   <section id="tab-fleet">
@@ -273,7 +298,7 @@ dialog.priv::backdrop { background: rgb(10 26 46 / .6); }
 </main>
 <dialog class="priv" id="privacyDlg" aria-labelledby="privTitle">
 <div class="l-en">
-  <h2 id="privTitle" tabindex="-1" style="outline:none">Privacy and security</h2>
+  <h2 id="privTitle" tabindex="-1" style="outline:none">Privacy, security and terms</h2>
   <p class="lede">This app doesn't collect personal information, and nothing you do here is shared with the app's owner.</p>
   <p class="now"><b>Right now:</b> <span class="privNow"></span></p>
   <p class="kicker">In this demo</p>
@@ -283,6 +308,8 @@ dialog.priv::backdrop { background: rgb(10 26 46 / .6); }
   <p>A log file you open in Flight log is read inside your browser. It isn't uploaded anywhere.</p>
   <h3>What's saved</h3>
   <p>Only your language choice (English or Spanish), kept in this browser. There's no sign-in, no cookies, no ads and no tracking. The page is hosted on GitHub Pages and loads its fonts from Google Fonts, so those services see a normal web request, like any website.</p>
+  <h3>Feedback</h3>
+  <p>Feedback is sent only if you choose to send it, on GitHub or through my website. It goes only to the app's developer.</p>
   <p class="kicker">When a fleet runs it for real</p>
   <h3>Data stays with the company</h3>
   <p>The console runs on the company's own server, and vehicle data goes only to that server. Nothing is sent to the app's author or to any outside service. Uploaded flight logs are checked on that server and not stored.</p>
@@ -300,9 +327,16 @@ dialog.priv::backdrop { background: rgb(10 26 46 / .6); }
     <li>Turn on sign-in and give each operator their own login, so the Action log shows who did what.</li>
     <li>Use a long, unique secret key for each vehicle, and change it if a vehicle is lost or stolen.</li>
   </ul>
+  <p class="kicker">Terms of use</p>
+  <h3>No guaranteed results</h3>
+  <p>Autonomous Fleet Debugger and its developer make no warranty of any outcome. Every recommendation and work order is specific to each vehicle, site and company, based on the data provided, and is only as good as that data. Success requires proper monitoring of each vehicle and of all the data pertinent to it, and the judgement of a qualified person before acting.</p>
+  <h3>Lost or deleted data</h3>
+  <p>Some remote fixes delete data on the vehicle, such as older system logs. They always warn you twice before running. You're responsible for the actions you run and for keeping your own backups. Autonomous Fleet Debugger and its developer aren't responsible for lost or deleted data, to the fullest extent the law allows.</p>
+  <h3>Provided as is</h3>
+  <p>The software is provided as is, under the PolyForm Noncommercial 1.0.0 license.</p>
 </div>
 <div class="l-es">
-  <h2 tabindex="-1" style="outline:none">Privacidad y seguridad</h2>
+  <h2 tabindex="-1" style="outline:none">Privacidad, seguridad y términos</h2>
   <p class="lede">Esta aplicación no recopila información personal, y nada de lo que haga aquí se comparte con el propietario de la aplicación.</p>
   <p class="now"><b>Ahora mismo:</b> <span class="privNow"></span></p>
   <p class="kicker">En esta demostración</p>
@@ -312,6 +346,8 @@ dialog.priv::backdrop { background: rgb(10 26 46 / .6); }
   <p>El archivo de registro que abra en Registro de vuelo se lee dentro de su navegador. No se sube a ningún lugar.</p>
   <h3>Qué se guarda</h3>
   <p>Solo su idioma preferido (inglés o español), guardado en este navegador. No hay inicio de sesión, cookies, anuncios ni rastreo. La página está alojada en GitHub Pages y carga sus fuentes desde Google Fonts, por lo que esos servicios ven una solicitud web normal, como en cualquier sitio.</p>
+  <h3>Comentarios</h3>
+  <p>Los comentarios se envían solo si usted decide enviarlos, por GitHub o a través de mi sitio web. Llegan solo a la desarrolladora de la aplicación.</p>
   <p class="kicker">Cuando una flota la usa de verdad</p>
   <h3>Los datos se quedan en la empresa</h3>
   <p>La consola funciona en el propio servidor de la empresa, y los datos de los vehículos van solo a ese servidor. No se envía nada a la autora de la aplicación ni a ningún servicio externo. Los registros de vuelo que se suben se revisan en ese servidor y no se guardan.</p>
@@ -329,8 +365,48 @@ dialog.priv::backdrop { background: rgb(10 26 46 / .6); }
     <li>Active el inicio de sesión y dé a cada operador su propio usuario, para que el Registro de acciones muestre quién hizo qué.</li>
     <li>Use una clave secreta larga y única para cada vehículo, y cámbiela si un vehículo se pierde o lo roban.</li>
   </ul>
+  <p class="kicker">Términos de uso</p>
+  <h3>Sin resultados garantizados</h3>
+  <p>Autonomous Fleet Debugger y su desarrolladora no garantizan ningún resultado. Cada recomendación y orden de trabajo es específica para cada vehículo, sitio y empresa, se basa en los datos proporcionados y solo es tan buena como esos datos. El éxito requiere supervisar adecuadamente cada vehículo y todos los datos pertinentes, y el criterio de una persona calificada antes de actuar.</p>
+  <h3>Datos perdidos o eliminados</h3>
+  <p>Algunas soluciones remotas eliminan datos del vehículo, como registros antiguos del sistema. Siempre le advierten dos veces antes de ejecutarse. Usted es responsable de las acciones que ejecuta y de mantener sus propias copias de seguridad. Autonomous Fleet Debugger y su desarrolladora no son responsables de datos perdidos o eliminados, en la medida máxima que permita la ley.</p>
+  <h3>Se ofrece tal cual</h3>
+  <p>El software se ofrece tal cual, bajo la licencia PolyForm Noncommercial 1.0.0.</p>
 </div>
 <form method="dialog"><button class="btn" data-i18n>Close</button></form>
+</dialog>
+<dialog class="priv fb" id="feedbackDlg" aria-labelledby="fbTitle">
+  <h2 id="fbTitle" tabindex="-1" style="outline:none" data-i18n>Feedback</h2>
+  <p class="lede" data-i18n>Help make the app better. Your feedback goes only to the app's developer and is used to plan future versions.</p>
+  <form id="fbForm">
+    <fieldset><legend data-i18n>What kind of feedback?</legend>
+      <div class="types">
+        <label><input type="radio" name="fbType" value="Idea" checked> <span data-i18n>Idea</span></label>
+        <label><input type="radio" name="fbType" value="Something's broken"> <span data-i18n>Something's broken</span></label>
+        <label><input type="radio" name="fbType" value="Other"> <span data-i18n>Other</span></label>
+      </div></fieldset>
+    <label for="fbRating"><span data-i18n>How useful is the app?</span>
+      <select id="fbRating"><option value="">–</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label>
+    <label for="fbText"><span data-i18n>What would make it better?</span>
+      <textarea id="fbText" required></textarea></label>
+    <label for="fbContact"><span data-i18n>How can I reach you? (optional)</span>
+      <input type="text" id="fbContact" autocomplete="email"></label>
+    <div class="send" id="fbSend" hidden>
+      <b data-i18n>Thanks! Choose how to send it. Nothing is sent until you do.</b>
+      <div class="row">
+        <a id="fbGithub" class="gh" target="_blank" rel="noopener" data-i18n>Send on GitHub</a>
+        <button type="button" class="btn secondary" id="fbCopy" data-i18n>Copy feedback</button>
+        <a href="https://www.thehumanelement.live/" target="_blank" rel="noopener" data-i18n>Send it through thehumanelement.live</a>
+      </div>
+      <span class="meta" data-i18n>Sending on GitHub needs a free GitHub account. Or copy your feedback and send it through my website.</span>
+      <textarea id="fbOut" readonly hidden></textarea>
+      <span class="meta" id="fbCopied" role="status"></span>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn secondary" id="fbClose" data-i18n>Close</button>
+      <button type="submit" class="btn" data-i18n>Prepare feedback</button>
+    </div>
+  </form>
 </dialog>
 <footer><p class="copyright" data-i18n>© 2026 Karen Tinoco. Licensed under PolyForm Noncommercial 1.0.0: free to use, share and adapt for non-commercial purposes, with credit. Commercial use by permission only.</p></footer>
 <script src="i18n.js"></script>
@@ -450,6 +526,7 @@ function decisionPanel(d) {
     ${x.work_order ? `<details class="wo" open><summary>${t('Work order for the technician')}</summary>
       <pre id="wotext">${esc(tr(x.work_order))}</pre>
       <button class="btn secondary" id="copywo">${t('Copy work order')}</button> <span class="meta" id="copied" role="status"></span></details>` : ''}
+    <p class="disclaim">${t("Every recommendation is specific to each vehicle, site and company, and is based on the data the vehicles report. Results aren't guaranteed: they depend on accurate data and on monitoring each vehicle and all the data that matters to it.")}</p>
   </section>`;
 }
 
@@ -598,14 +675,48 @@ function resultHtml(name, r) {
 }
 
 // Two-step confirm (the viewer blocks confirm()): first click arms, second runs.
+// Actions that permanently delete data on the vehicle get a double warning.
+const DATA_LOSS = {
+  vacuum_journal: 'Older system logs are erased to free disk space.',
+  restore_config: 'Hand edits to the config file are overwritten with the approved version.',
+};
+function disarm() {
+  document.querySelectorAll('#detail .waiver').forEach(w => w.remove());
+  document.querySelectorAll('#detail button.confirm').forEach(b => {
+    b.classList.remove('confirm'); b.disabled = false; delete b.dataset.step; b.textContent = b.dataset.idle || t('Run'); });
+}
 async function armThenRun(btn, d, name, params, label) {
+  if (DATA_LOSS[name] && btn.dataset.step !== 'ack') {
+    if (!btn.dataset.step) {  // warning 1
+      disarm();
+      btn.dataset.idle = label; btn.dataset.step = 'warn'; btn.classList.add('confirm');
+      btn.textContent = t('Continue');
+      const w = document.createElement('div'); w.className = 'waiver'; w.setAttribute('role', 'alert');
+      w.innerHTML = `<div><b>${t('Warning: this permanently deletes data on {v}.', {v: esc(d.name)})}</b>
+        ${t(DATA_LOSS[name])} ${t("It can't be undone or recovered.")}</div>
+        <div class="row"><button type="button" class="btn secondary">${t('Cancel')}</button></div>`;
+      w.querySelector('button').onclick = disarm;
+      btn.insertAdjacentElement('afterend', w);
+      return;
+    }
+    // warning 2: the person must accept responsibility before the button unlocks
+    const w = btn.nextElementSibling;
+    btn.dataset.step = 'ack'; btn.disabled = true;
+    btn.textContent = t('Delete permanently on {v}', {v: d.name});
+    w.innerHTML = `<div><b>${t('Final warning: permanent deletion')}</b></div>
+      <label><input type="checkbox"> <span>${t("I understand this permanently deletes data on {v} and it can't be recovered. I accept full responsibility for this action. I agree that Autonomous Fleet Debugger and its developer are not responsible for any loss of data, and I give up any right to make a claim or bring a lawsuit against them over it, to the fullest extent the law allows.", {v: esc(d.name)})}</span></label>
+      <div class="row"><button type="button" class="btn secondary">${t('Cancel')}</button></div>`;
+    w.querySelector('input').onchange = e => { btn.disabled = !e.target.checked; };
+    w.querySelector('button').onclick = disarm;
+    return;
+  }
   if (!btn.classList.contains('confirm')) {
-    document.querySelectorAll('#detail button.confirm').forEach(b => {
-      b.classList.remove('confirm'); b.textContent = b.dataset.idle || t('Run'); });
+    disarm();
     btn.dataset.idle = label;
     btn.classList.add('confirm'); btn.textContent = t('Confirm on {v}', {v: d.name});
     return;
   }
+  document.querySelectorAll('#detail .waiver').forEach(w => w.remove());
   btn.disabled = true; btn.textContent = t('Running…');
   const r = await (await fetch('/api/action', {method: 'POST', body: JSON.stringify({
     drone: d.name, action: name, params, ticket: $('#ticket')?.value || '', reason: $('#reason')?.value || ''})})).json();
@@ -762,6 +873,30 @@ $('#privacyBtn').onclick = () => {
   $('#privacyDlg').showModal();
   [...document.querySelectorAll('.priv h2')].find(h => h.offsetParent)?.focus();
   $('#privacyDlg').scrollTop = 0;
+};
+
+// Feedback: the static site has no server, so the person picks how to send it.
+const fbText = () => {
+  const type = document.querySelector('input[name="fbType"]:checked').value;
+  return [`Type: ${type}`, `Usefulness (1-5): ${$('#fbRating').value || '-'}`,
+    `Contact: ${$('#fbContact').value.trim() || '-'}`, `Language: ${I18N.lang}`, '', $('#fbText').value.trim()].join('\n');
+};
+$('#feedbackBtn').onclick = () => {
+  $('#fbSend').hidden = true; $('#feedbackDlg').showModal(); $('#fbTitle').focus(); $('#feedbackDlg').scrollTop = 0;
+};
+$('#fbClose').onclick = () => $('#feedbackDlg').close();
+$('#fbForm').onsubmit = e => {
+  e.preventDefault();
+  const body = fbText(), type = document.querySelector('input[name="fbType"]:checked').value;
+  $('#fbOut').value = body;
+  $('#fbGithub').href = 'https://github.com/karentinoco13-alt/fleet-debugger/issues/new?title=' +
+    encodeURIComponent(`Feedback: ${type}`) + '&body=' + encodeURIComponent(body) + '&labels=feedback';
+  $('#fbSend').hidden = false; $('#fbCopied').textContent = '';
+  $('#fbSend').scrollIntoView({block: 'nearest'});
+};
+$('#fbCopy').onclick = async () => {
+  try { await navigator.clipboard.writeText($('#fbOut').value); $('#fbCopied').textContent = t('Copied.'); }
+  catch (err) { const o = $('#fbOut'); o.hidden = false; o.select(); $('#fbCopied').textContent = t('Select the text above and copy it.'); }
 };
 </script>
 </body>
