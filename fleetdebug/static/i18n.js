@@ -8,6 +8,16 @@
 // A phrase with no entry is shown in English rather than guessed.
 window.I18N = (() => {
   const EXACT = {
+    "Delete all my data": "Borrar todos mis datos",
+    "This app saves only your language choice in this browser. Deleting it resets the app to its first-visit state.": "Esta aplicación solo guarda su idioma preferido en este navegador. Al borrarlo, la aplicación vuelve a como estaba en su primera visita.",
+    "When your company runs its own console, fleet records and the Action log belong to the company and are kept for safety and audit. Ask your administrator about those.": "Cuando su empresa usa su propia consola, los registros de la flota y el Registro de acciones pertenecen a la empresa y se conservan por seguridad y auditoría. Consulte a su administrador sobre ellos.",
+    "Warning 1 of 2": "Advertencia 1 de 2",
+    "This permanently deletes everything this app saved in this browser. It can't be undone or recovered.": "Esto elimina de forma permanente todo lo que esta aplicación guardó en este navegador. No se puede deshacer ni recuperar.",
+    "Keep my data": "Conservar mis datos",
+    "I understand my data will be permanently deleted and can't be recovered. I accept full responsibility for deleting it. I agree that Autonomous Fleet Debugger and its developer are not responsible for any loss of data, and I give up any right to make a claim or bring a lawsuit against them over it, to the fullest extent the law allows.": "Entiendo que mis datos se eliminarán de forma permanente y no se pueden recuperar. Acepto toda la responsabilidad por eliminarlos. Acepto que Autonomous Fleet Debugger y su desarrolladora no son responsables de ninguna pérdida de datos, y renuncio a cualquier derecho a presentar un reclamo o una demanda contra ellos por ello, en la medida máxima que permita la ley.",
+    "Delete permanently": "Eliminar permanentemente",
+    "Your data was deleted.": "Sus datos fueron eliminados.",
+    "The page will reload.": "La página se volverá a cargar.",
     "Feedback": "Comentarios",
     "Help make the app better. Your feedback goes only to the app's developer and is used to plan future versions.": "Ayude a mejorar la aplicación. Sus comentarios llegan solo a la desarrolladora y se usan para planear las próximas versiones.",
     "What kind of feedback?": "¿Qué tipo de comentario?",

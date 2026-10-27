@@ -227,6 +227,10 @@ dialog.priv::backdrop { background: rgb(10 26 46 / .6); }
 .waiver label { display: flex; gap: 8px; align-items: flex-start; }
 .waiver input { margin-top: 3px; flex: none; }
 .waiver .row button { font-size: 13px; }
+.deldata { border: 1px solid var(--crit); background: var(--crit-bg); border-radius: 10px; padding: 14px 16px; margin-top: 22px; display: grid; gap: 8px; }
+.deldata h3 { margin: 0 !important; color: var(--crit) !important; }
+.deldata label { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; }
+.deldata input { margin-top: 4px; flex: none; }
 .disclaim { font-size: 12px; color: var(--muted); margin-top: 12px !important; border-top: 1px solid var(--line); padding-top: 8px; }
 .fb label { display: grid; gap: 4px; font-weight: 600; font-size: 14px; margin-top: 12px; }
 .fb fieldset { border: 0; padding: 0; margin: 12px 0 0; }
@@ -373,6 +377,12 @@ dialog.priv::backdrop { background: rgb(10 26 46 / .6); }
   <h3>Se ofrece tal cual</h3>
   <p>El software se ofrece tal cual, bajo la licencia PolyForm Noncommercial 1.0.0.</p>
 </div>
+<section class="deldata" id="delData">
+  <h3 data-i18n>Delete all my data</h3>
+  <p data-i18n>This app saves only your language choice in this browser. Deleting it resets the app to its first-visit state.</p>
+  <p class="meta" data-i18n>When your company runs its own console, fleet records and the Action log belong to the company and are kept for safety and audit. Ask your administrator about those.</p>
+  <div id="delStep"><button type="button" class="btn confirm" id="delStart" data-i18n>Delete all my data</button></div>
+</section>
 <form method="dialog"><button class="btn" data-i18n>Close</button></form>
 </dialog>
 <dialog class="priv fb" id="feedbackDlg" aria-labelledby="fbTitle">
@@ -898,6 +908,34 @@ $('#fbCopy').onclick = async () => {
   try { await navigator.clipboard.writeText($('#fbOut').value); $('#fbCopied').textContent = t('Copied.'); }
   catch (err) { const o = $('#fbOut'); o.hidden = false; o.select(); $('#fbCopied').textContent = t('Select the text above and copy it.'); }
 };
+
+// Delete all my data: two warnings, then clear everything this app saved in the browser.
+function delReset() {
+  $('#delStep').innerHTML = `<button type="button" class="btn confirm" id="delStart">${t('Delete all my data')}</button>`;
+  $('#delStart').onclick = delWarn1;
+}
+function delWarn1() {
+  $('#delStep').innerHTML = `<p><b>${t('Warning 1 of 2')}</b> ${t("This permanently deletes everything this app saved in this browser. It can't be undone or recovered.")}</p>
+    <div class="row"><button type="button" class="btn secondary" id="delKeep">${t('Keep my data')}</button>
+    <button type="button" class="btn confirm" id="delNext">${t('Continue')}</button></div>`;
+  $('#delKeep').onclick = delReset; $('#delNext').onclick = delWarn2;
+}
+function delWarn2() {
+  $('#delStep').innerHTML = `<p><b>${t('Final warning: permanent deletion')}</b></p>
+    <label><input type="checkbox" id="delAck"> <span>${t("I understand my data will be permanently deleted and can't be recovered. I accept full responsibility for deleting it. I agree that Autonomous Fleet Debugger and its developer are not responsible for any loss of data, and I give up any right to make a claim or bring a lawsuit against them over it, to the fullest extent the law allows.")}</span></label>
+    <div class="row"><button type="button" class="btn secondary" id="delKeep">${t('Keep my data')}</button>
+    <button type="button" class="btn confirm" id="delGo" disabled>${t('Delete permanently')}</button></div>`;
+  $('#delAck').onchange = e => { $('#delGo').disabled = !e.target.checked; };
+  $('#delKeep').onclick = delReset;
+  $('#delGo').onclick = () => {
+    try { Object.keys(localStorage).filter(k => k.startsWith('fleetdebug.')).forEach(k => localStorage.removeItem(k)); } catch (e) {}
+    try { sessionStorage.clear(); } catch (e) {}
+    $('#delStep').innerHTML = `<p role="status"><b>${t('Your data was deleted.')}</b> ${t('The page will reload.')}</p>`;
+    setTimeout(() => location.reload(), 1500);
+  };
+}
+$('#delStart').onclick = delWarn1;
+$('#privacyDlg').addEventListener('close', delReset);
 </script>
 </body>
 </html>
