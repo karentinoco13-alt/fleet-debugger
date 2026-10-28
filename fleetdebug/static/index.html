@@ -263,6 +263,118 @@ tbody tr:nth-child(even) td, table tr:nth-child(even) td { background: var(--bg)
 .result { border-left: 4px solid var(--accent); }
 .action .n { color: var(--accent); }
 .demo-note { border-left: 5px solid var(--signal); }
+/* Color depth: tinted page, tinted fleet panel, filled decision panel, state-tinted tiles,
+   severity-weighted findings, solid status chips. Status meaning is fixed:
+   red = send technician, amber = wait/schedule, blue = fix remotely / fixing itself, green = OK. */
+:root {
+  --bg: #e8eef5; --page-top: #d6e2ef; --page-glow: rgb(242 182 50 / .16);
+  --list-bg: #e3ebf4; --stripe: #edf3f9; --ink-2: #34424b; --on-status: #ffffff;
+  --ok-ink: #17663b; --warn-ink: #8a5200;
+  --crit-fill: #f8dcd8; --warn-fill: #fbe6c2; --info-fill: #d3ebf3; --ok-fill: #d6efdf;
+  --site-a: #1b3b60; --site-b: #0e6a85; --h3-band: #dcebf3; --bar-a: #0e6a85; --bar-b: #1b3b60;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c141c; --page-top: #0f2033; --page-glow: rgb(242 182 50 / .07);
+    --list-bg: #101c28; --stripe: #18242e; --ink-2: #c9d3d9; --on-status: #0b1418;
+    --ok-ink: #4cc283; --warn-ink: #f0a640;
+    --crit-fill: #3d1c1b; --warn-fill: #3a2a10; --info-fill: #143846; --ok-fill: #163323;
+    --site-a: #15304f; --site-b: #1d5a73; --h3-band: #142b38; --bar-a: #5cc3e0; --bar-b: #2f86a6;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c141c; --page-top: #0f2033; --page-glow: rgb(242 182 50 / .07);
+  --list-bg: #101c28; --stripe: #18242e; --ink-2: #c9d3d9; --on-status: #0b1418;
+  --ok-ink: #4cc283; --warn-ink: #f0a640;
+  --crit-fill: #3d1c1b; --warn-fill: #3a2a10; --info-fill: #143846; --ok-fill: #163323;
+  --site-a: #15304f; --site-b: #1d5a73; --h3-band: #142b38; --bar-a: #5cc3e0; --bar-b: #2f86a6;
+}
+body { background: radial-gradient(900px 360px at 100% 0, var(--page-glow), transparent 70%),
+       linear-gradient(180deg, var(--page-top), var(--bg) 520px) var(--bg); background-attachment: fixed; }
+.card { box-shadow: 0 1px 2px rgb(15 39 66 / .08), 0 6px 18px -8px rgb(15 39 66 / .18); }
+
+/* fleet list */
+#list { background: var(--list-bg); }
+.site { background: linear-gradient(90deg, var(--site-a), var(--site-b)); color: var(--on-navy);
+        border-left: 4px solid var(--signal); border-radius: 6px; padding: 7px 10px; margin-inline: 0; }
+.drone { background: var(--panel); border: 1px solid var(--line); margin-bottom: 6px; border-left-width: 4px; }
+.drone:has(.dot.ok) { border-left-color: var(--ok); }
+.drone:has(.dot.warning) { border-left-color: var(--warn); }
+.drone:has(.dot.critical), .drone:has(.dot.unreachable) { border-left-color: var(--crit); }
+.drone:hover { background: var(--stripe); }
+.drone.sel { background: var(--info-bg); border-color: var(--accent); border-left-width: 4px; box-shadow: 0 0 0 1px var(--accent); }
+
+/* solid status chips and badges */
+.chip.crit { background: var(--crit); color: var(--on-status); }
+.chip.warn { background: var(--warn); color: var(--on-status); }
+.chip.info { background: var(--info); color: var(--on-status); }
+.chip.ok { background: var(--ok); color: var(--on-status); }
+.GO { color: var(--ok-ink); box-shadow: inset 0 0 0 1px var(--ok); }
+.HOLD { color: var(--warn-ink); box-shadow: inset 0 0 0 1px var(--warn); }
+.NO-GO { box-shadow: inset 0 0 0 1px var(--crit); }
+.sev { padding: 1px 7px; border-radius: 999px; display: inline-block; }
+.sev.critical { background: var(--crit-bg); } .sev.warning { background: var(--warn-bg); color: var(--warn-ink); }
+.sev.info { background: var(--info-bg); }
+p.sev { display: block; padding: 8px 12px; border-radius: 8px; }
+.route.wait { color: var(--warn-ink); border-color: var(--warn); }
+.route.site { background: var(--crit-bg); color: var(--crit); border-color: var(--crit); }
+.pre.ok { color: var(--ok-ink); }
+
+/* decision panel: a strong fill in its decision color */
+.decision { border-width: 2px; border-left-width: 8px; }
+.decision.crit { background: var(--crit-fill); }
+.decision.warn { background: var(--warn-fill); }
+.decision.info { background: var(--info-fill); }
+.decision.ok { background: var(--ok-fill); }
+.decision .meta, .decision .disclaim { color: var(--ink-2); }
+.decision .disclaim { border-top-color: rgb(0 0 0 / .12); }
+.step .mark { background: var(--panel); }
+.step.done .mark { background: var(--ok); color: var(--on-status); box-shadow: none; }
+.step.doing .mark { background: var(--info); color: var(--on-status); box-shadow: none; }
+.step.todo .mark { background: var(--crit); color: var(--on-status); box-shadow: none; }
+
+/* health tiles tinted by state */
+.tile { background: var(--ok-bg); border: 0; border-top: 4px solid var(--ok); }
+.tile.meh { background: var(--warn-bg); border-top-color: var(--warn); }
+.tile.bad { background: var(--crit-bg); border-top-color: var(--crit); }
+.tile .k { color: var(--ink-2); }
+.tile.meh .v { color: var(--warn-ink); } .tile.bad .v { color: var(--crit); }
+
+/* findings and root causes */
+.finding { border-left-width: 7px; border-radius: 0 8px 8px 0; }
+.finding.critical { background: var(--crit-bg); } .finding.warning { background: var(--warn-bg); }
+.finding.info { background: var(--info-bg); }
+.finding .d { color: var(--ink-2); }
+.rc { border-left: 7px solid var(--warn); border-radius: 0 8px 8px 0; }
+.rc .e { color: var(--ink-2); }
+.incident { border-left-width: 7px; }
+
+/* section headers */
+#detail h3, #logresult h3 { background: linear-gradient(90deg, var(--h3-band), transparent 85%);
+  padding: 6px 8px; border-radius: 6px; }
+.card > h3:not(:first-child) { background: linear-gradient(90deg, var(--h3-band), transparent 85%);
+  padding: 6px 10px; border-left: 4px solid var(--signal); border-radius: 0 6px 6px 0; }
+
+/* tables */
+tbody tr:nth-child(even) td, table tr:nth-child(even) td { background: var(--stripe); }
+tbody tr:hover td { background: var(--info-bg); }
+td { border-bottom-color: var(--line); }
+.bar { background: linear-gradient(90deg, var(--bar-a), var(--bar-b)); }
+.resbar { box-shadow: inset 0 0 0 1px var(--line); }
+
+/* other tabs */
+#tab-logs .card, #tab-audit .card { border-top: 4px solid var(--signal); }
+#tab-logs .card > .row:first-child { background: var(--info-bg); border-radius: 8px; padding: 10px 12px; }
+.action { padding-inline: 8px; }
+.action:nth-child(even) { background: var(--stripe); }
+.result { background: var(--info-bg); }
+
+/* buttons */
+button.btn { font-weight: 600; box-shadow: 0 1px 0 rgb(0 0 0 / .15); }
+button.btn:not(.secondary):not(.confirm):not(:disabled):hover { background: var(--navy-2); color: var(--on-navy); }
+button.btn.secondary { background: var(--info-bg); color: var(--accent); border: 1px solid var(--accent); }
+button.btn.secondary:not(:disabled):hover { background: var(--info-fill); }
+button.btn.confirm { color: var(--on-status); }
 </style>
 </head>
 <body>

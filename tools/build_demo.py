@@ -306,6 +306,13 @@ html[lang="es"] .l-en, html:not([lang="es"]) .l-es { display: none; }
                     background: var(--info-bg); border-radius: 0 8px 8px 0; }
 .prose table { margin: 8px 0 16px; }
 .prose hr { border: 0; border-top: 1px solid var(--line); margin: 24px 0; }
+.prose { border-top: 4px solid var(--signal); }
+.prose h1 { color: var(--accent); }
+.prose h2 { background: linear-gradient(90deg, var(--h3-band), transparent 85%); border-left: 5px solid var(--signal);
+            padding: 7px 12px; border-radius: 0 8px 8px 0; margin-top: 26px; }
+.prose h3 { color: var(--accent); }
+.prose code { background: var(--warn-bg); }
+.prose pre { background: var(--stripe); border-left: 4px solid var(--accent); }
 </style>"""
     scripts = (f"<script>window.DEMO_STATIC = true;\nwindow.DEMO = {js_json(data)};\n"
                f"window.DEMO_SAMPLE_CSV = {js_json(buf.getvalue())};</script>\n"
