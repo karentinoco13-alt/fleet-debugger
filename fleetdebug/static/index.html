@@ -247,6 +247,22 @@ dialog.priv::backdrop { background: rgb(10 26 46 / .6); }
 .fb .send .row a { text-decoration: none; }
 .fb a.gh { background: var(--accent); color: var(--on-accent); border-radius: 6px; padding: 7px 12px; font-weight: 600; }
 .fb .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
+
+/* Interior color: navy card headers with the amber beacon line, navy table heads, amber section markers */
+.card > h3:first-child { margin: -14px -14px 14px !important; padding: 11px 14px; background: var(--navy); color: var(--on-navy) !important;
+  border-radius: 10px 10px 0 0; border-bottom: 3px solid var(--signal); letter-spacing: .06em; }
+th { background: var(--navy-2); color: var(--on-navy); border-bottom: 0; }
+tr:first-child th:first-child { border-top-left-radius: 6px; } tr:first-child th:last-child { border-top-right-radius: 6px; }
+tbody tr:nth-child(even) td, table tr:nth-child(even) td { background: var(--bg); }
+#detail h3, #logresult h3 { display: flex; align-items: center; gap: 8px; }
+#detail h3::before, #logresult h3::before { content: ""; width: 6px; height: 1.1em; border-radius: 3px; background: var(--signal); flex: none; }
+#list { border-top: 4px solid var(--signal); }
+#detail { border-top: 4px solid var(--accent); }
+.site { background: var(--info-bg); border-bottom: 0; border-radius: 6px; padding: 6px 10px; margin-inline: -4px; }
+.wo pre { background: var(--warn-bg); border-color: var(--warn); }
+.result { border-left: 4px solid var(--accent); }
+.action .n { color: var(--accent); }
+.demo-note { border-left: 5px solid var(--signal); }
 </style>
 </head>
 <body>
