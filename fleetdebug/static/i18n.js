@@ -9,7 +9,17 @@
 window.I18N = (() => {
   const EXACT = {
     "Delete all my data": "Borrar todos mis datos",
-    "This app saves only your language choice in this browser. Deleting it resets the app to its first-visit state.": "Esta aplicación solo guarda su idioma preferido en este navegador. Al borrarlo, la aplicación vuelve a como estaba en su primera visita.",
+    "This app saves only your language choice and the date you accepted the terms in this browser. Deleting them resets the app to its first-visit state, and you'll be asked to accept the terms again.": "Esta aplicación solo guarda en este navegador su idioma preferido y la fecha en que aceptó los términos. Al borrarlos, la aplicación vuelve a como estaba en su primera visita y se le pedirá aceptar los términos de nuevo.",
+    // terms gate
+    "Before you start: Terms of use": "Antes de empezar: Términos de uso",
+    "Read the full Privacy, security and terms": "Leer completo: Privacidad, seguridad y términos",
+    "I have read and accept the Terms of use and the Privacy & security notice": "He leído y acepto los Términos de uso y el aviso de Privacidad y seguridad",
+    "Decline": "Rechazar",
+    "Accept and continue": "Aceptar y continuar",
+    "You need to accept the terms to use the app": "Debe aceptar los términos para usar la aplicación",
+    "Review again": "Revisar de nuevo",
+    "Terms summary": "Resumen de los términos",
+    "You accepted these terms on {date}.": "Usted aceptó estos términos el {date}.",
     "When your company runs its own console, fleet records and the Action log belong to the company and are kept for safety and audit. Ask your administrator about those.": "Cuando su empresa usa su propia consola, los registros de la flota y el Registro de acciones pertenecen a la empresa y se conservan por seguridad y auditoría. Consulte a su administrador sobre ellos.",
     "Warning 1 of 2": "Advertencia 1 de 2",
     "This permanently deletes everything this app saved in this browser. It can't be undone or recovered.": "Esto elimina de forma permanente todo lo que esta aplicación guardó en este navegador. No se puede deshacer ni recuperar.",

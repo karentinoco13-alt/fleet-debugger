@@ -375,6 +375,44 @@ button.btn:not(.secondary):not(.confirm):not(:disabled):hover { background: var(
 button.btn.secondary { background: var(--info-bg); color: var(--accent); border: 1px solid var(--accent); }
 button.btn.secondary:not(:disabled):hover { background: var(--info-fill); }
 button.btn.confirm { color: var(--on-status); }
+
+/* Terms gate: blocking first-use dialog (no close, Esc or backdrop dismissal) */
+.gate { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px;
+        background: rgb(10 26 46 / .88); overflow: hidden; }
+.gate[hidden] { display: none; }
+.gate .panel { width: 100%; max-width: 680px; max-height: 100%; display: flex; flex-direction: column; min-width: 0;
+               background: var(--panel); color: var(--ink); border-top: 6px solid var(--signal); border-radius: 12px;
+               box-shadow: 0 18px 50px rgb(0 0 0 / .35); overflow: hidden; }
+.gate .top { display: flex; align-items: flex-start; gap: 12px; padding: 18px 22px 12px; background: var(--navy);
+             color: var(--on-navy); border-bottom: 3px solid var(--signal); }
+.gate h2 { font-size: 22px; margin: 0; flex: 1; min-width: 0; text-wrap: balance; color: var(--on-navy); outline: none; }
+.gate .top .langs { border-color: var(--navy-2); background: var(--navy-2); flex: none; }
+.gate .top .langs button { color: var(--on-navy-muted); }
+.gate .top .langs button[aria-pressed="true"] { background: var(--signal); color: var(--on-signal); }
+.gate .top :focus-visible { outline-color: var(--signal); }
+.gate .body { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+.gate .sum { overflow: auto; min-height: 0; flex: 1; padding: 14px 22px; border-bottom: 1px solid var(--line); background: var(--stripe, var(--bg)); }
+.gate .sum ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.gate .sum li { font-size: 14.5px; line-height: 1.5; padding: 10px 12px 10px 14px; background: var(--panel);
+                border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0; overflow-wrap: anywhere; }
+.gate .sum li.del { border-left-color: var(--crit); background: var(--crit-bg); }
+.gate .sum li b { display: block; margin-bottom: 2px; }
+.gate .sum .lede { font-size: 14.5px; margin: 0 0 10px; }
+.gate .ctl { padding: 14px 22px 18px; display: grid; gap: 12px; }
+.gate .full { justify-self: start; background: none; border: 0; padding: 0; font: 600 14px var(--font-ui); color: var(--accent);
+              text-decoration: underline; text-underline-offset: 3px; cursor: pointer; text-align: left; }
+.gate .ack { display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; line-height: 1.45; font-weight: 600;
+             background: var(--info-bg); border-radius: 8px; padding: 10px 12px; cursor: pointer; }
+.gate .ack input { margin-top: 3px; flex: none; width: 18px; height: 18px; accent-color: var(--accent); }
+.gate .acts { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+.gate .acts .btn { padding: 9px 16px; font-size: 14px; }
+.gate .declined { padding: 28px 22px; display: grid; gap: 14px; justify-items: start; }
+.gate .declined p { margin: 0; font-size: 17px; font-weight: 600; background: var(--warn-bg); color: var(--ink);
+                    border-left: 4px solid var(--warn); border-radius: 0 8px 8px 0; padding: 12px 14px; }
+.gate .declined[hidden], .gate .body[hidden] { display: none; }
+@media (max-width: 520px) { .gate { padding: 8px; } .gate .top, .gate .sum, .gate .ctl { padding-inline: 16px; }
+  .gate h2 { font-size: 19px; } .gate .acts .btn { flex: 1; } }
+.priv .accepted { background: var(--ok-bg); border-left: 4px solid var(--ok); border-radius: 0 8px 8px 0; padding: 10px 14px; margin-top: 18px; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -439,7 +477,7 @@ button.btn.confirm { color: var(--on-status); }
   <h3>Flight logs stay on your computer</h3>
   <p>A log file you open in Flight log is read inside your browser. It isn't uploaded anywhere.</p>
   <h3>What's saved</h3>
-  <p>Only your language choice (English or Spanish), kept in this browser. There's no sign-in, no cookies, no ads and no tracking. The page is hosted on GitHub Pages and loads its fonts from Google Fonts, so those services see a normal web request, like any website.</p>
+  <p>Only your language choice (English or Spanish) and the date you accepted the terms, kept in this browser. There's no sign-in, no cookies, no ads and no tracking. The page is hosted on GitHub Pages and loads its fonts from Google Fonts, so those services see a normal web request, like any website.</p>
   <h3>Feedback</h3>
   <p>Feedback is sent only if you choose to send it, on GitHub or through my website. It goes only to the app's developer.</p>
   <p class="kicker">When a fleet runs it for real</p>
@@ -477,7 +515,7 @@ button.btn.confirm { color: var(--on-status); }
   <h3>Los registros de vuelo se quedan en su computadora</h3>
   <p>El archivo de registro que abra en Registro de vuelo se lee dentro de su navegador. No se sube a ningún lugar.</p>
   <h3>Qué se guarda</h3>
-  <p>Solo su idioma preferido (inglés o español), guardado en este navegador. No hay inicio de sesión, cookies, anuncios ni rastreo. La página está alojada en GitHub Pages y carga sus fuentes desde Google Fonts, por lo que esos servicios ven una solicitud web normal, como en cualquier sitio.</p>
+  <p>Solo su idioma preferido (inglés o español) y la fecha en que aceptó los términos, guardados en este navegador. No hay inicio de sesión, cookies, anuncios ni rastreo. La página está alojada en GitHub Pages y carga sus fuentes desde Google Fonts, por lo que esos servicios ven una solicitud web normal, como en cualquier sitio.</p>
   <h3>Comentarios</h3>
   <p>Los comentarios se envían solo si usted decide enviarlos, por GitHub o a través de mi sitio web. Llegan solo a la desarrolladora de la aplicación.</p>
   <p class="kicker">Cuando una flota la usa de verdad</p>
@@ -505,9 +543,10 @@ button.btn.confirm { color: var(--on-status); }
   <h3>Se ofrece tal cual</h3>
   <p>El software se ofrece tal cual, bajo la licencia PolyForm Noncommercial 1.0.0.</p>
 </div>
+<p class="accepted" id="privAccepted" role="status" hidden></p>
 <section class="deldata" id="delData">
   <h3 data-i18n>Delete all my data</h3>
-  <p data-i18n>This app saves only your language choice in this browser. Deleting it resets the app to its first-visit state.</p>
+  <p data-i18n>This app saves only your language choice and the date you accepted the terms in this browser. Deleting them resets the app to its first-visit state, and you'll be asked to accept the terms again.</p>
   <p class="meta" data-i18n>When your company runs its own console, fleet records and the Action log belong to the company and are kept for safety and audit. Ask your administrator about those.</p>
   <div id="delStep"><button type="button" class="btn confirm" id="delStart" data-i18n>Delete all my data</button></div>
 </section>
@@ -546,6 +585,55 @@ button.btn.confirm { color: var(--on-status); }
     </div>
   </form>
 </dialog>
+<div class="gate" id="termsGate" role="dialog" aria-modal="true" aria-labelledby="gateTitle" aria-describedby="gateSum" hidden>
+<div class="panel">
+  <div class="top">
+    <h2 id="gateTitle" tabindex="-1" data-i18n>Before you start: Terms of use</h2>
+    <div class="langs" role="group" aria-label="Language / Idioma">
+      <button type="button" data-lang="en" lang="en" title="English">EN</button>
+      <button type="button" data-lang="es" lang="es" title="Español">ES</button>
+    </div>
+  </div>
+  <div class="body" id="gateBody">
+    <div class="sum" id="gateSum" tabindex="0" role="region" aria-label="Terms summary">
+      <div class="l-en">
+        <p class="lede">Please read this summary of the Terms of use and the Privacy &amp; security notice.</p>
+        <ul>
+          <li><b>Free to use while it's being tested</b>Autonomous Fleet Debugger is free to use while it's being tested for feedback. Your feedback goes only to the app's developer and is used to plan future versions.</li>
+          <li><b>No guaranteed results</b>Autonomous Fleet Debugger and its developer make no warranty of any outcome. Every recommendation and work order is based on the data provided and is only as good as that data. Success requires proper monitoring of each vehicle and the judgement of a qualified person before acting.</li>
+          <li><b>The demo fleet is simulated</b>The vehicles, faults and fixes in the demo are simulated. Clicking a fix changes only what you see, and everything resets when you reload the page.</li>
+          <li class="del"><b>Fixes that delete data are permanent</b>Some remote fixes delete data on the vehicle, such as older system logs. They always warn you twice before running, and deleted data can't be recovered. You're responsible for the actions you run and for keeping your own backups. Autonomous Fleet Debugger and its developer aren't responsible for lost or deleted data, to the fullest extent the law allows.</li>
+          <li><b>Where your data is kept</b>In the demo, everything runs in your browser, and flight logs you open aren't uploaded anywhere. This browser saves only your language choice and the date you accepted these terms. When a fleet runs the console for real, vehicle data goes only to the company's own server.</li>
+          <li><b>Licence</b>The software is provided as is, under the PolyForm Noncommercial 1.0.0 license: free to use, share and adapt for non-commercial purposes, with credit. Commercial use by permission only.</li>
+        </ul>
+      </div>
+      <div class="l-es">
+        <p class="lede">Lea este resumen de los Términos de uso y del aviso de Privacidad y seguridad.</p>
+        <ul>
+          <li><b>De uso gratuito mientras se prueba</b>Autonomous Fleet Debugger es de uso gratuito mientras se prueba para recibir comentarios. Sus comentarios llegan solo a la desarrolladora y se usan para planear las próximas versiones.</li>
+          <li><b>Sin resultados garantizados</b>Autonomous Fleet Debugger y su desarrolladora no garantizan ningún resultado. Cada recomendación y orden de trabajo se basa en los datos proporcionados y solo es tan buena como esos datos. El éxito requiere supervisar adecuadamente cada vehículo y el criterio de una persona calificada antes de actuar.</li>
+          <li><b>La flota de la demostración es simulada</b>Los vehículos, las fallas y las soluciones de la demostración son simulados. Al aplicar una solución solo cambia lo que usted ve, y todo se reinicia al recargar la página.</li>
+          <li class="del"><b>Las soluciones que eliminan datos son permanentes</b>Algunas soluciones remotas eliminan datos del vehículo, como registros antiguos del sistema. Siempre le advierten dos veces antes de ejecutarse, y los datos eliminados no se pueden recuperar. Usted es responsable de las acciones que ejecuta y de mantener sus propias copias de seguridad. Autonomous Fleet Debugger y su desarrolladora no son responsables de datos perdidos o eliminados, en la medida máxima que permita la ley.</li>
+          <li><b>Dónde se guardan sus datos</b>En la demostración, todo funciona en su navegador, y los registros de vuelo que abra no se suben a ningún lugar. Este navegador guarda solo su idioma preferido y la fecha en que aceptó estos términos. Cuando una flota usa la consola de verdad, los datos de los vehículos van solo al propio servidor de la empresa.</li>
+          <li><b>Licencia</b>El software se ofrece tal cual, bajo la licencia PolyForm Noncommercial 1.0.0: libre para usar, compartir y adaptar con fines no comerciales, dando crédito. Uso comercial solo con permiso.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="ctl">
+      <button type="button" class="full" id="gateFull" data-i18n>Read the full Privacy, security and terms</button>
+      <label class="ack" for="gateAck"><input type="checkbox" id="gateAck"> <span data-i18n>I have read and accept the Terms of use and the Privacy &amp; security notice</span></label>
+      <div class="acts">
+        <button type="button" class="btn secondary" id="gateDecline" data-i18n>Decline</button>
+        <button type="button" class="btn" id="gateAccept" disabled data-i18n>Accept and continue</button>
+      </div>
+    </div>
+  </div>
+  <div class="declined" id="gateDeclined" hidden>
+    <p role="alert" data-i18n>You need to accept the terms to use the app</p>
+    <button type="button" class="btn" id="gateReview" data-i18n>Review again</button>
+  </div>
+</div>
+</div>
 <footer><p class="copyright" data-i18n>© 2026 Karen Tinoco. Licensed under PolyForm Noncommercial 1.0.0: free to use, share and adapt for non-commercial purposes, with credit. Commercial use by permission only.</p></footer>
 <script src="i18n.js"></script>
 <script>
@@ -985,6 +1073,7 @@ function applyLang() {
   document.title = t('Autonomous Fleet Debugger');
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('.langs button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === I18N.lang)));
+  $('#gateSum').setAttribute('aria-label', t('Terms summary'));
 }
 document.querySelectorAll('.langs button').forEach(b => b.onclick = () => {
   I18N.set(b.dataset.lang); applyLang();
@@ -997,6 +1086,55 @@ document.querySelectorAll('.langs button').forEach(b => b.onclick = () => {
 });
 applyLang();
 
+// Terms gate: blocks the app on first use until the terms are accepted. Acceptance is kept in
+// this browser; bumping TERMS_VERSION shows the gate again. No storage means it shows every visit.
+const TERMS_KEY = 'fleetdebug.termsAccepted', TERMS_VERSION = '2026-10-28';
+function termsAccepted() {
+  try {
+    const v = JSON.parse(localStorage.getItem(TERMS_KEY) || 'null');
+    return v && v.version === TERMS_VERSION && v.acceptedAt ? v : null;
+  } catch (e) { return null; }
+}
+const gate = $('#termsGate'), behindGate = ['header', 'main', 'footer'].map(q => document.querySelector(q));
+function gateFocusables() {
+  return [...gate.querySelectorAll('button, input, [tabindex="0"]')].filter(el => !el.disabled && el.offsetParent);
+}
+function gateShowBody(declined) {
+  $('#gateBody').hidden = declined; $('#gateDeclined').hidden = !declined;
+  if (declined) $('#gateReview').focus();
+  else { $('#gateAck').checked = false; $('#gateAccept').disabled = true; $('#gateSum').scrollTop = 0; $('#gateTitle').focus(); }
+}
+function openGate() {
+  behindGate.forEach(el => el && (el.inert = true));
+  document.documentElement.style.overflow = 'hidden';
+  gate.hidden = false; gateShowBody(false);
+}
+function closeGate() {
+  gate.hidden = true; behindGate.forEach(el => el && (el.inert = false));
+  document.documentElement.style.overflow = '';
+}
+gate.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); return; }
+  if (e.key !== 'Tab') return;
+  const f = gateFocusables(); if (!f.length) return;
+  const first = f[0], last = f[f.length - 1];
+  if (e.shiftKey && (document.activeElement === first || !gate.contains(document.activeElement))) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+});
+document.addEventListener('focusin', e => {  // keep focus in the gate unless a dialog opened from it is on top
+  if (!gate.hidden && !gate.contains(e.target) && !e.target.closest?.('dialog[open]')) $('#gateTitle').focus();
+});
+$('#gateAck').onchange = e => { $('#gateAccept').disabled = !e.target.checked; };
+$('#gateAccept').onclick = () => {
+  if (!$('#gateAck').checked) return;
+  try { localStorage.setItem(TERMS_KEY, JSON.stringify({version: TERMS_VERSION, acceptedAt: new Date().toISOString()})); } catch (e) {}
+  closeGate();
+};
+$('#gateDecline').onclick = () => gateShowBody(true);
+$('#gateReview').onclick = () => gateShowBody(false);
+$('#gateFull').onclick = () => $('#privacyBtn').onclick();
+if (!termsAccepted()) openGate();
+
 fetch('/api/faults').then(r => r.json()).then(f => faults = f);
 load(); setInterval(load, 5000);
 
@@ -1008,6 +1146,10 @@ $('#privacyBtn').onclick = () => {
     : {en: "You're connected to your company's console. Fleet data is handled by that server only.",
        es: 'Está conectado a la consola de su empresa. Solo ese servidor maneja los datos de la flota.'};
   document.querySelectorAll('.privNow').forEach(el => { el.textContent = now[el.closest('.l-es') ? 'es' : 'en']; });
+  const acc = termsAccepted();
+  $('#privAccepted').hidden = !acc;
+  if (acc) $('#privAccepted').textContent = t('You accepted these terms on {date}.',
+    {date: new Date(acc.acceptedAt).toLocaleDateString(I18N.locale(), {year: 'numeric', month: 'long', day: 'numeric'})});
   $('#privacyDlg').showModal();
   [...document.querySelectorAll('.priv h2')].find(h => h.offsetParent)?.focus();
   $('#privacyDlg').scrollTop = 0;
