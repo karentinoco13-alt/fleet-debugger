@@ -243,9 +243,16 @@ dialog.priv::backdrop { background: rgb(10 26 46 / .6); }
              border: 1px solid var(--line); border-radius: 6px; padding: 8px; width: 100%; }
 .fb textarea { min-height: 110px; resize: vertical; }
 .fb .send { display: grid; gap: 8px; background: var(--ok-bg); border-radius: 8px; padding: 12px 14px; margin-top: 14px; }
+.fb .send[hidden] { display: none; }
 .priv.fb form { display: block; margin-top: 0; }
 .fb .send .row a { text-decoration: none; }
-.fb a.gh { background: var(--accent); color: var(--on-accent); border-radius: 6px; padding: 7px 12px; font-weight: 600; }
+.fb a.gh { display: inline-flex; align-items: center; background: var(--info-bg); color: var(--accent); border: 1px solid var(--accent);
+           border-radius: 6px; padding: 7px 12px; font-weight: 600; }
+.fb .rate label { position: relative; min-width: 44px; min-height: 40px; justify-content: center; font-weight: 600; cursor: pointer; }
+.fb .rate input { position: absolute; opacity: 0; pointer-events: none; }
+.fb .rate label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.fb .status:empty { display: none; }
+.fb .status { display: block; margin-top: 10px; font-size: 14px; }
 .fb .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
 
 /* Interior color: navy card headers with the amber beacon line, navy table heads, amber section markers */
@@ -376,42 +383,27 @@ button.btn.secondary { background: var(--info-bg); color: var(--accent); border:
 button.btn.secondary:not(:disabled):hover { background: var(--info-fill); }
 button.btn.confirm { color: var(--on-status); }
 
-/* Terms gate: blocking first-use dialog (no close, Esc or backdrop dismissal) */
-.gate { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px;
-        background: rgb(10 26 46 / .88); overflow: hidden; }
-.gate[hidden] { display: none; }
-.gate .panel { width: 100%; max-width: 680px; max-height: 100%; display: flex; flex-direction: column; min-width: 0;
-               background: var(--panel); color: var(--ink); border-top: 6px solid var(--signal); border-radius: 12px;
-               box-shadow: 0 18px 50px rgb(0 0 0 / .35); overflow: hidden; }
-.gate .top { display: flex; align-items: flex-start; gap: 12px; padding: 18px 22px 12px; background: var(--navy);
-             color: var(--on-navy); border-bottom: 3px solid var(--signal); }
-.gate h2 { font-size: 22px; margin: 0; flex: 1; min-width: 0; text-wrap: balance; color: var(--on-navy); outline: none; }
-.gate .top .langs { border-color: var(--navy-2); background: var(--navy-2); flex: none; }
-.gate .top .langs button { color: var(--on-navy-muted); }
-.gate .top .langs button[aria-pressed="true"] { background: var(--signal); color: var(--on-signal); }
-.gate .top :focus-visible { outline-color: var(--signal); }
-.gate .body { display: flex; flex-direction: column; min-height: 0; flex: 1; }
-.gate .sum { overflow: auto; min-height: 0; flex: 1; padding: 14px 22px; border-bottom: 1px solid var(--line); background: var(--stripe, var(--bg)); }
-.gate .sum ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
-.gate .sum li { font-size: 14.5px; line-height: 1.5; padding: 10px 12px 10px 14px; background: var(--panel);
-                border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0; overflow-wrap: anywhere; }
-.gate .sum li.del { border-left-color: var(--crit); background: var(--crit-bg); }
-.gate .sum li b { display: block; margin-bottom: 2px; }
-.gate .sum .lede { font-size: 14.5px; margin: 0 0 10px; }
-.gate .ctl { padding: 14px 22px 18px; display: grid; gap: 12px; }
-.gate .full { justify-self: start; background: none; border: 0; padding: 0; font: 600 14px var(--font-ui); color: var(--accent);
-              text-decoration: underline; text-underline-offset: 3px; cursor: pointer; text-align: left; }
-.gate .ack { display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; line-height: 1.45; font-weight: 600;
-             background: var(--info-bg); border-radius: 8px; padding: 10px 12px; cursor: pointer; }
-.gate .ack input { margin-top: 3px; flex: none; width: 18px; height: 18px; accent-color: var(--accent); }
-.gate .acts { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
-.gate .acts .btn { padding: 9px 16px; font-size: 14px; }
-.gate .declined { padding: 28px 22px; display: grid; gap: 14px; justify-items: start; }
-.gate .declined p { margin: 0; font-size: 17px; font-weight: 600; background: var(--warn-bg); color: var(--ink);
-                    border-left: 4px solid var(--warn); border-radius: 0 8px 8px 0; padding: 12px 14px; }
-.gate .declined[hidden], .gate .body[hidden] { display: none; }
-@media (max-width: 520px) { .gate { padding: 8px; } .gate .top, .gate .sum, .gate .ctl { padding-inline: 16px; }
-  .gate h2 { font-size: 19px; } .gate .acts .btn { flex: 1; } }
+/* Terms notice: one dismissible line at the bottom; using the app counts as agreeing */
+.tnotice { position: sticky; bottom: 0; z-index: 40; display: flex; align-items: center; gap: 12px;
+           justify-content: center; padding: 8px max(16px, env(safe-area-inset-right, 0px)) max(8px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+           background: var(--navy-2); color: var(--on-navy); border-top: 2px solid var(--signal); font-size: 13px; }
+.tnotice[hidden] { display: none; }
+.tnotice p { margin: 0; min-width: 0; }
+.tnotice .lnk { display: inline; padding-block: 10px; }
+.tnotice .lnk, footer .lnk { background: none; border: 0; padding: 0; font: inherit; font-weight: 600; color: inherit;
+           text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.tnotice .btn { background: var(--signal); color: var(--on-signal); padding: 5px 16px; }
+footer .lnk { color: var(--on-navy); }
+/* Phones: 40px+ tap targets, 16px inputs (no iOS zoom), tighter dialogs */
+@media (max-width: 640px) {
+  nav button, .langs button, .privbtn, button.btn, .fb a.gh, footer .lnk { min-height: 40px; }
+  .langs button { min-width: 44px; }
+  details > summary { padding-block: 11px; }
+  input, select, textarea, input.txt, input[type=file], .fb textarea, .fb input[type=text] { font-size: 16px; min-height: 40px; }
+  .step .fixbtn { padding: 8px 12px; }
+  dialog.priv { padding: 18px 16px; width: calc(100% - 16px); max-height: calc(100% - 16px); }
+  .priv h2 { font-size: 22px; }
+}
 .priv .accepted { background: var(--ok-bg); border-left: 4px solid var(--ok); border-radius: 0 8px 8px 0; padding: 10px 14px; margin-top: 18px; font-weight: 600; }
 </style>
 </head>
@@ -477,7 +469,7 @@ button.btn.confirm { color: var(--on-status); }
   <h3>Flight logs stay on your computer</h3>
   <p>A log file you open in Flight log is read inside your browser. It isn't uploaded anywhere.</p>
   <h3>What's saved</h3>
-  <p>Only your language choice (English or Spanish) and the date you accepted the terms, kept in this browser. There's no sign-in, no cookies, no ads and no tracking. The page is hosted on GitHub Pages and loads its fonts from Google Fonts, so those services see a normal web request, like any website.</p>
+  <p>Only your language choice (English or Spanish) and the date you closed the terms notice, kept in this browser. There's no sign-in, no cookies, no ads and no tracking. The page is hosted on GitHub Pages and loads its fonts from Google Fonts, so those services see a normal web request, like any website.</p>
   <h3>Feedback</h3>
   <p>Feedback is sent only if you choose to send it: delivered privately to the app's developer (stored in the developer's Google account), or on GitHub or through my website. It goes only to the app's developer.</p>
   <p class="kicker">When a fleet runs it for real</p>
@@ -498,6 +490,7 @@ button.btn.confirm { color: var(--on-status); }
     <li>Use a long, unique secret key for each vehicle, and change it if a vehicle is lost or stolen.</li>
   </ul>
   <p class="kicker">Terms of use</p>
+  <p>By using this app you agree to these terms. There's nothing to sign up for.</p>
   <h3>No guaranteed results</h3>
   <p>Autonomous Fleet Debugger and its developer make no warranty of any outcome. Every recommendation and work order is specific to each vehicle, site and company, based on the data provided, and is only as good as that data. Success requires proper monitoring of each vehicle and of all the data pertinent to it, and the judgement of a qualified person before acting.</p>
   <h3>Lost or deleted data</h3>
@@ -515,7 +508,7 @@ button.btn.confirm { color: var(--on-status); }
   <h3>Los registros de vuelo se quedan en su computadora</h3>
   <p>El archivo de registro que abra en Registro de vuelo se lee dentro de su navegador. No se sube a ningún lugar.</p>
   <h3>Qué se guarda</h3>
-  <p>Solo su idioma preferido (inglés o español) y la fecha en que aceptó los términos, guardados en este navegador. No hay inicio de sesión, cookies, anuncios ni rastreo. La página está alojada en GitHub Pages y carga sus fuentes desde Google Fonts, por lo que esos servicios ven una solicitud web normal, como en cualquier sitio.</p>
+  <p>Solo su idioma preferido (inglés o español) y la fecha en que cerró el aviso de términos, guardados en este navegador. No hay inicio de sesión, cookies, anuncios ni rastreo. La página está alojada en GitHub Pages y carga sus fuentes desde Google Fonts, por lo que esos servicios ven una solicitud web normal, como en cualquier sitio.</p>
   <h3>Comentarios</h3>
   <p>Los comentarios se envían solo si usted decide enviarlos: de forma privada a la desarrolladora de la aplicación (se guardan en la cuenta de Google de la desarrolladora), o por GitHub o a través de mi sitio web. Llegan solo a la desarrolladora de la aplicación.</p>
   <p class="kicker">Cuando una flota la usa de verdad</p>
@@ -536,6 +529,7 @@ button.btn.confirm { color: var(--on-status); }
     <li>Use una clave secreta larga y única para cada vehículo, y cámbiela si un vehículo se pierde o lo roban.</li>
   </ul>
   <p class="kicker">Términos de uso</p>
+  <p>Al usar esta aplicación, usted acepta estos términos. No hace falta registrarse.</p>
   <h3>Sin resultados garantizados</h3>
   <p>Autonomous Fleet Debugger y su desarrolladora no garantizan ningún resultado. Cada recomendación y orden de trabajo es específica para cada vehículo, sitio y empresa, se basa en los datos proporcionados y solo es tan buena como esos datos. El éxito requiere supervisar adecuadamente cada vehículo y todos los datos pertinentes, y el criterio de una persona calificada antes de actuar.</p>
   <h3>Datos perdidos o eliminados</h3>
@@ -546,7 +540,7 @@ button.btn.confirm { color: var(--on-status); }
 <p class="accepted" id="privAccepted" role="status" hidden></p>
 <section class="deldata" id="delData">
   <h3 data-i18n>Delete all my data</h3>
-  <p data-i18n>This app saves only your language choice and the date you accepted the terms in this browser. Deleting them resets the app to its first-visit state, and you'll be asked to accept the terms again.</p>
+  <p data-i18n>This app saves only your language choice and the date you closed the terms notice in this browser. Deleting them resets the app to its first-visit state, and the terms notice shows again.</p>
   <p class="meta" data-i18n>When your company runs its own console, fleet records and the Action log belong to the company and are kept for safety and audit. Ask your administrator about those.</p>
   <div id="delStep"><button type="button" class="btn confirm" id="delStart" data-i18n>Delete all my data</button></div>
 </section>
@@ -556,25 +550,22 @@ button.btn.confirm { color: var(--on-status); }
   <h2 id="fbTitle" tabindex="-1" style="outline:none" data-i18n>Feedback</h2>
   <p class="lede" data-i18n>Help make the app better. Your feedback goes only to the app's developer and is used to plan future versions.</p>
   <form id="fbForm">
-    <fieldset><legend data-i18n>What kind of feedback?</legend>
-      <div class="types">
-        <label><input type="radio" name="fbType" value="Idea" checked> <span data-i18n>Idea</span></label>
-        <label><input type="radio" name="fbType" value="Something's broken"> <span data-i18n>Something's broken</span></label>
-        <label><input type="radio" name="fbType" value="Other"> <span data-i18n>Other</span></label>
-      </div></fieldset>
-    <label for="fbRating"><span data-i18n>How useful is the app?</span>
-      <select id="fbRating"><option value="">–</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label>
-    <label for="fbText"><span data-i18n>What would make it better?</span>
-      <textarea id="fbText" required></textarea></label>
+    <fieldset><legend data-i18n>How useful is the app? (optional)</legend>
+      <div class="types rate">
+        <label><input type="radio" name="fbRating" value="1">1</label>
+        <label><input type="radio" name="fbRating" value="2">2</label>
+        <label><input type="radio" name="fbRating" value="3">3</label>
+        <label><input type="radio" name="fbRating" value="4">4</label>
+        <label><input type="radio" name="fbRating" value="5">5</label>
+      </div>
+      <span class="meta" data-i18n>1 = not useful · 5 = very useful</span></fieldset>
+    <label for="fbText"><span data-i18n>What would make it better? (optional)</span>
+      <textarea id="fbText"></textarea></label>
     <label for="fbContact"><span data-i18n>How can I reach you? (optional)</span>
       <input type="text" id="fbContact" autocomplete="email"></label>
+    <span class="meta status" id="fbEmailStatus" role="status"></span>
     <div class="send" id="fbSend" hidden>
-      <b data-i18n>Thanks! Choose how to send it. Nothing is sent until you do.</b>
-      <div id="fbPrivate" hidden>
-        <div class="row"><button type="button" class="btn" id="fbEmail" data-i18n>Send feedback</button></div>
-        <span class="meta" id="fbEmailStatus" role="status"></span>
-        <span class="meta" data-i18n>Or send it another way:</span>
-      </div>
+      <b id="fbSendHead" data-i18n>Thanks! Choose how to send it. Nothing is sent until you do.</b>
       <div class="row">
         <a id="fbGithub" class="gh" target="_blank" rel="noopener" data-i18n>Send on GitHub</a>
         <button type="button" class="btn secondary" id="fbCopy" data-i18n>Copy feedback</button>
@@ -586,60 +577,16 @@ button.btn.confirm { color: var(--on-status); }
     </div>
     <div class="actions">
       <button type="button" class="btn secondary" id="fbClose" data-i18n>Close</button>
-      <button type="submit" class="btn" data-i18n>Prepare feedback</button>
+      <button type="submit" class="btn" id="fbSubmit" data-i18n>Send feedback</button>
     </div>
   </form>
 </dialog>
-<div class="gate" id="termsGate" role="dialog" aria-modal="true" aria-labelledby="gateTitle" aria-describedby="gateSum" hidden>
-<div class="panel">
-  <div class="top">
-    <h2 id="gateTitle" tabindex="-1" data-i18n>Before you start: Terms of use</h2>
-    <div class="langs" role="group" aria-label="Language / Idioma">
-      <button type="button" data-lang="en" lang="en" title="English">EN</button>
-      <button type="button" data-lang="es" lang="es" title="Español">ES</button>
-    </div>
-  </div>
-  <div class="body" id="gateBody">
-    <div class="sum" id="gateSum" tabindex="0" role="region" aria-label="Terms summary">
-      <div class="l-en">
-        <p class="lede">Please read this summary of the Terms of use and the Privacy &amp; security notice.</p>
-        <ul>
-          <li><b>Free to use while it's being tested</b>Autonomous Fleet Debugger is free to use while it's being tested for feedback. Your feedback goes only to the app's developer and is used to plan future versions.</li>
-          <li><b>No guaranteed results</b>Autonomous Fleet Debugger and its developer make no warranty of any outcome. Every recommendation and work order is based on the data provided and is only as good as that data. Success requires proper monitoring of each vehicle and the judgement of a qualified person before acting.</li>
-          <li><b>The demo fleet is simulated</b>The vehicles, faults and fixes in the demo are simulated. Clicking a fix changes only what you see, and everything resets when you reload the page.</li>
-          <li class="del"><b>Fixes that delete data are permanent</b>Some remote fixes delete data on the vehicle, such as older system logs. They always warn you twice before running, and deleted data can't be recovered. You're responsible for the actions you run and for keeping your own backups. Autonomous Fleet Debugger and its developer aren't responsible for lost or deleted data, to the fullest extent the law allows.</li>
-          <li><b>Where your data is kept</b>In the demo, everything runs in your browser, and flight logs you open aren't uploaded anywhere. This browser saves only your language choice and the date you accepted these terms. When a fleet runs the console for real, vehicle data goes only to the company's own server.</li>
-          <li><b>Licence</b>The software is provided as is, under the PolyForm Noncommercial 1.0.0 license: free to use, share and adapt for non-commercial purposes, with credit. Commercial use by permission only.</li>
-        </ul>
-      </div>
-      <div class="l-es">
-        <p class="lede">Lea este resumen de los Términos de uso y del aviso de Privacidad y seguridad.</p>
-        <ul>
-          <li><b>De uso gratuito mientras se prueba</b>Autonomous Fleet Debugger es de uso gratuito mientras se prueba para recibir comentarios. Sus comentarios llegan solo a la desarrolladora y se usan para planear las próximas versiones.</li>
-          <li><b>Sin resultados garantizados</b>Autonomous Fleet Debugger y su desarrolladora no garantizan ningún resultado. Cada recomendación y orden de trabajo se basa en los datos proporcionados y solo es tan buena como esos datos. El éxito requiere supervisar adecuadamente cada vehículo y el criterio de una persona calificada antes de actuar.</li>
-          <li><b>La flota de la demostración es simulada</b>Los vehículos, las fallas y las soluciones de la demostración son simulados. Al aplicar una solución solo cambia lo que usted ve, y todo se reinicia al recargar la página.</li>
-          <li class="del"><b>Las soluciones que eliminan datos son permanentes</b>Algunas soluciones remotas eliminan datos del vehículo, como registros antiguos del sistema. Siempre le advierten dos veces antes de ejecutarse, y los datos eliminados no se pueden recuperar. Usted es responsable de las acciones que ejecuta y de mantener sus propias copias de seguridad. Autonomous Fleet Debugger y su desarrolladora no son responsables de datos perdidos o eliminados, en la medida máxima que permita la ley.</li>
-          <li><b>Dónde se guardan sus datos</b>En la demostración, todo funciona en su navegador, y los registros de vuelo que abra no se suben a ningún lugar. Este navegador guarda solo su idioma preferido y la fecha en que aceptó estos términos. Cuando una flota usa la consola de verdad, los datos de los vehículos van solo al propio servidor de la empresa.</li>
-          <li><b>Licencia</b>El software se ofrece tal cual, bajo la licencia PolyForm Noncommercial 1.0.0: libre para usar, compartir y adaptar con fines no comerciales, dando crédito. Uso comercial solo con permiso.</li>
-        </ul>
-      </div>
-    </div>
-    <div class="ctl">
-      <button type="button" class="full" id="gateFull" data-i18n>Read the full Privacy, security and terms</button>
-      <label class="ack" for="gateAck"><input type="checkbox" id="gateAck"> <span data-i18n>I have read and accept the Terms of use and the Privacy &amp; security notice</span></label>
-      <div class="acts">
-        <button type="button" class="btn secondary" id="gateDecline" data-i18n>Decline</button>
-        <button type="button" class="btn" id="gateAccept" disabled data-i18n>Accept and continue</button>
-      </div>
-    </div>
-  </div>
-  <div class="declined" id="gateDeclined" hidden>
-    <p role="alert" data-i18n>You need to accept the terms to use the app</p>
-    <button type="button" class="btn" id="gateReview" data-i18n>Review again</button>
-  </div>
+<footer><p class="copyright" data-i18n>© 2026 Karen Tinoco. Licensed under PolyForm Noncommercial 1.0.0: free to use, share and adapt for non-commercial purposes, with credit. Commercial use by permission only.</p>
+  <p class="copyright" style="padding-top:0"><button type="button" class="lnk" id="footerTerms" data-i18n>Privacy, security and terms</button></p></footer>
+<div class="tnotice" id="termsNotice" role="region" aria-label="Terms notice" hidden>
+  <p><span data-i18n>By using this app you agree to the</span> <button type="button" class="lnk" id="noticeTerms" data-i18n>Terms and Privacy notice</button>.</p>
+  <button type="button" class="btn" id="noticeOk" data-i18n>OK</button>
 </div>
-</div>
-<footer><p class="copyright" data-i18n>© 2026 Karen Tinoco. Licensed under PolyForm Noncommercial 1.0.0: free to use, share and adapt for non-commercial purposes, with credit. Commercial use by permission only.</p></footer>
 <script src="i18n.js"></script>
 <script>
 let fleet = [], selected = null, faults = {}, lastLogText = null;
@@ -1078,7 +1025,7 @@ function applyLang() {
   document.title = t('Autonomous Fleet Debugger');
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('.langs button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === I18N.lang)));
-  $('#gateSum').setAttribute('aria-label', t('Terms summary'));
+  $('#termsNotice').setAttribute('aria-label', t('Terms notice'));
 }
 document.querySelectorAll('.langs button').forEach(b => b.onclick = () => {
   I18N.set(b.dataset.lang); applyLang();
@@ -1091,8 +1038,8 @@ document.querySelectorAll('.langs button').forEach(b => b.onclick = () => {
 });
 applyLang();
 
-// Terms gate: blocks the app on first use until the terms are accepted. Acceptance is kept in
-// this browser; bumping TERMS_VERSION shows the gate again. No storage means it shows every visit.
+// Terms notice: never blocks the app. Using it counts as agreeing; OK just hides the line,
+// remembered in this browser. Bumping TERMS_VERSION shows the line again.
 const TERMS_KEY = 'fleetdebug.termsAccepted', TERMS_VERSION = '2026-10-28';
 function termsAccepted() {
   try {
@@ -1100,45 +1047,13 @@ function termsAccepted() {
     return v && v.version === TERMS_VERSION && v.acceptedAt ? v : null;
   } catch (e) { return null; }
 }
-const gate = $('#termsGate'), behindGate = ['header', 'main', 'footer'].map(q => document.querySelector(q));
-function gateFocusables() {
-  return [...gate.querySelectorAll('button, input, [tabindex="0"]')].filter(el => !el.disabled && el.offsetParent);
-}
-function gateShowBody(declined) {
-  $('#gateBody').hidden = declined; $('#gateDeclined').hidden = !declined;
-  if (declined) $('#gateReview').focus();
-  else { $('#gateAck').checked = false; $('#gateAccept').disabled = true; $('#gateSum').scrollTop = 0; $('#gateTitle').focus(); }
-}
-function openGate() {
-  behindGate.forEach(el => el && (el.inert = true));
-  document.documentElement.style.overflow = 'hidden';
-  gate.hidden = false; gateShowBody(false);
-}
-function closeGate() {
-  gate.hidden = true; behindGate.forEach(el => el && (el.inert = false));
-  document.documentElement.style.overflow = '';
-}
-gate.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); return; }
-  if (e.key !== 'Tab') return;
-  const f = gateFocusables(); if (!f.length) return;
-  const first = f[0], last = f[f.length - 1];
-  if (e.shiftKey && (document.activeElement === first || !gate.contains(document.activeElement))) { e.preventDefault(); last.focus(); }
-  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-});
-document.addEventListener('focusin', e => {  // keep focus in the gate unless a dialog opened from it is on top
-  if (!gate.hidden && !gate.contains(e.target) && !e.target.closest?.('dialog[open]')) $('#gateTitle').focus();
-});
-$('#gateAck').onchange = e => { $('#gateAccept').disabled = !e.target.checked; };
-$('#gateAccept').onclick = () => {
-  if (!$('#gateAck').checked) return;
+$('#noticeOk').onclick = () => {
   try { localStorage.setItem(TERMS_KEY, JSON.stringify({version: TERMS_VERSION, acceptedAt: new Date().toISOString()})); } catch (e) {}
-  closeGate();
+  $('#termsNotice').hidden = true;
 };
-$('#gateDecline').onclick = () => gateShowBody(true);
-$('#gateReview').onclick = () => gateShowBody(false);
-$('#gateFull').onclick = () => $('#privacyBtn').onclick();
-if (!termsAccepted()) openGate();
+$('#noticeTerms').onclick = () => $('#privacyBtn').onclick();
+$('#footerTerms').onclick = () => $('#privacyBtn').onclick();
+$('#termsNotice').hidden = !!termsAccepted();
 
 fetch('/api/faults').then(r => r.json()).then(f => faults = f);
 load(); setInterval(load, 5000);
@@ -1153,35 +1068,39 @@ $('#privacyBtn').onclick = () => {
   document.querySelectorAll('.privNow').forEach(el => { el.textContent = now[el.closest('.l-es') ? 'es' : 'en']; });
   const acc = termsAccepted();
   $('#privAccepted').hidden = !acc;
-  if (acc) $('#privAccepted').textContent = t('You accepted these terms on {date}.',
+  if (acc) $('#privAccepted').textContent = t('You closed the terms notice on {date}.',
     {date: new Date(acc.acceptedAt).toLocaleDateString(I18N.locale(), {year: 'numeric', month: 'long', day: 'numeric'})});
   $('#privacyDlg').showModal();
   [...document.querySelectorAll('.priv h2')].find(h => h.offsetParent)?.focus();
   $('#privacyDlg').scrollTop = 0;
 };
 
-// Feedback: the static site has no server, so the person picks how to send it.
+// Feedback: rating and comment are both optional (one is enough). With an endpoint it sends in
+// one tap; without one, the person picks another way to send it.
 const FEEDBACK_ENDPOINT = '';  // Google Apps Script web app URL; set by owner
-const fbText = () => {
-  const type = document.querySelector('input[name="fbType"]:checked').value;
-  return [`Type: ${type}`, `Usefulness (1-5): ${$('#fbRating').value || '-'}`,
-    `Contact: ${$('#fbContact').value.trim() || '-'}`, `Language: ${I18N.lang}`, '', $('#fbText').value.trim()].join('\n');
-};
+const fbRating = () => document.querySelector('input[name="fbRating"]:checked')?.value || '';
+const fbText = () => [`Usefulness (1-5): ${fbRating() || '-'}`,
+  `Contact: ${$('#fbContact').value.trim() || '-'}`, `Language: ${I18N.lang}`, '', $('#fbText').value.trim()].join('\n');
+function fbReset() {
+  const b = $('#fbSubmit');
+  b.dataset.i18n = FEEDBACK_ENDPOINT ? 'Send feedback' : 'Prepare feedback';
+  b.textContent = t(b.dataset.i18n); b.disabled = false;
+  $('#fbSend').hidden = true; $('#fbEmailStatus').textContent = '';
+}
+fbReset();
 $('#feedbackBtn').onclick = () => {
-  $('#fbSend').hidden = true; $('#feedbackDlg').showModal(); $('#fbTitle').focus(); $('#feedbackDlg').scrollTop = 0;
+  fbReset(); $('#feedbackDlg').showModal(); $('#fbTitle').focus(); $('#feedbackDlg').scrollTop = 0;
 };
 $('#fbClose').onclick = () => $('#feedbackDlg').close();
-$('#fbForm').onsubmit = e => {
-  e.preventDefault();
-  const body = fbText(), type = document.querySelector('input[name="fbType"]:checked').value;
+function fbShowOtherWays(head) {
+  const body = fbText();
   $('#fbOut').value = body;
   $('#fbGithub').href = 'https://github.com/karentinoco13-alt/fleet-debugger/issues/new?title=' +
-    encodeURIComponent(`Feedback: ${type}`) + '&body=' + encodeURIComponent(body) + '&labels=feedback';
-  $('#fbSend').hidden = false; $('#fbCopied').textContent = ''; $('#fbEmailStatus').textContent = '';
-  $('#fbPrivate').hidden = !FEEDBACK_ENDPOINT;
-  $('#fbEmail').disabled = false; $('#fbEmail').textContent = t('Send feedback');
+    encodeURIComponent('Feedback') + '&body=' + encodeURIComponent(body) + '&labels=feedback';
+  $('#fbSendHead').dataset.i18n = head; $('#fbSendHead').textContent = t(head);
+  $('#fbSend').hidden = false; $('#fbCopied').textContent = '';
   $('#fbSend').scrollIntoView({block: 'nearest'});
-};
+}
 // Private delivery to the developer, only what the person typed. Off while the endpoint is empty.
 async function sendFeedbackToOwner(payload) {
   if (!FEEDBACK_ENDPOINT) return false;
@@ -1189,19 +1108,24 @@ async function sendFeedbackToOwner(payload) {
   try { const r = await fetch(FEEDBACK_ENDPOINT, {method: 'POST', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body}); return r.ok; }
   catch (e) { try { await fetch(FEEDBACK_ENDPOINT, {method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body}); return true; } catch (e2) { return false; } }
 }
-$('#fbEmail').onclick = async () => {
-  const btn = $('#fbEmail'), status = $('#fbEmailStatus');
-  btn.disabled = true; btn.textContent = t('Sending…'); status.textContent = '';
+$('#fbForm').onsubmit = async e => {
+  e.preventDefault();
+  const btn = $('#fbSubmit'), status = $('#fbEmailStatus');
+  if (!fbRating() && !$('#fbText').value.trim()) { status.textContent = t('Pick a rating or write a comment first.'); return; }
+  status.textContent = '';
+  if (!FEEDBACK_ENDPOINT) { fbShowOtherWays('Thanks! Choose how to send it. Nothing is sent until you do.'); return; }
+  btn.disabled = true; btn.textContent = t('Sending…'); $('#fbSend').hidden = true;
   const ok = await sendFeedbackToOwner({app: 'Autonomous Fleet Debugger', page: location.href, language: I18N.lang,
-    type: document.querySelector('input[name="fbType"]:checked').value, rating: $('#fbRating').value || '-',
-    message: $('#fbText').value.trim(), contact: $('#fbContact').value.trim() || '-',
+    rating: fbRating() || '-', message: $('#fbText').value.trim(), contact: $('#fbContact').value.trim() || '-',
     submitted: new Date().toISOString()});
   if (ok) {
     btn.textContent = t('Sent');
     status.textContent = t('Thanks! Your feedback was sent to the developer.');
+    status.scrollIntoView({block: 'nearest'});
   } else {
     btn.disabled = false; btn.textContent = t('Send feedback');
     status.textContent = t("Your feedback couldn't be sent. Check your connection and try again, or send it another way below.");
+    fbShowOtherWays('Or send it another way:');
   }
 };
 $('#fbCopy').onclick = async () => {
