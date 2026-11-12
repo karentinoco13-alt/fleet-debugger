@@ -3214,7 +3214,7 @@ $('#privacyBtn').onclick = () => {
 
 // Feedback: rating and comment are both optional (one is enough). With an endpoint it sends in
 // one tap; without one, the person picks another way to send it.
-const FEEDBACK_ENDPOINT = '';  // Google Apps Script web app URL; set by owner
+const FEEDBACK_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxHYLwYatf0CjrD8Y2IO5rVQUmlQUi7X1NVVkAiU0Oi7VpmJZJicC5-5bs7cOYQsyrdrA/exec';  // private Google Apps Script web app (feedback inbox)
 const fbRating = () => document.querySelector('input[name="fbRating"]:checked')?.value || '';
 const fbText = () => [`Usefulness (1-5): ${fbRating() || '-'}`,
   `Contact: ${$('#fbContact').value.trim() || '-'}`, `Language: ${I18N.lang}`, '', $('#fbText').value.trim()].join('\n');
