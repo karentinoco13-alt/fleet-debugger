@@ -318,6 +318,18 @@ html[lang="es"] .l-en, html:not([lang="es"]) .l-es { display: none; }
                f"window.DEMO_SAMPLE_CSV = {js_json(buf.getvalue())};</script>\n"
                f"<script>\n{shim}\n</script>\n")
     body = body.replace("<script>", scripts + "<script>", 1)
+    if standalone:  # the public GitHub Pages copy counts visits; the self-hosted console doesn't
+        for old, new in (
+                ("no cookies, no ads and no tracking.",
+                 "no cookies and no ads. Visits are counted with GoatCounter: no cookies, no "
+                 "personal data."),
+                ("cookies, anuncios ni rastreo.",
+                 "cookies ni anuncios. Las visitas se cuentan con GoatCounter: sin cookies ni "
+                 "datos personales.")):
+            assert old in body, old
+            body = body.replace(old, new, 1)
+        body += ('\n<script data-goatcounter="https://karentinoco13.goatcounter.com/count" async '
+                 'src="//gc.zgo.at/count.js"></script>')
     if standalone:  # a normal web page for any static host
         out_html = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
                     '<meta name="viewport" content="width=device-width, initial-scale=1">\n'

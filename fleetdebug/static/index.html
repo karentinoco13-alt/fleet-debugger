@@ -479,7 +479,7 @@ button.btn.confirm { color: var(--on-status); }
   <h3>What's saved</h3>
   <p>Only your language choice (English or Spanish) and the date you accepted the terms, kept in this browser. There's no sign-in, no cookies, no ads and no tracking. The page is hosted on GitHub Pages and loads its fonts from Google Fonts, so those services see a normal web request, like any website.</p>
   <h3>Feedback</h3>
-  <p>Feedback is sent only if you choose to send it, on GitHub or through my website. It goes only to the app's developer.</p>
+  <p>Feedback is sent only if you choose to send it: delivered privately to the app's developer (stored in the developer's Google account), or on GitHub or through my website. It goes only to the app's developer.</p>
   <p class="kicker">When a fleet runs it for real</p>
   <h3>Data stays with the company</h3>
   <p>The console runs on the company's own server, and vehicle data goes only to that server. Nothing is sent to the app's author or to any outside service. Uploaded flight logs are checked on that server and not stored.</p>
@@ -517,7 +517,7 @@ button.btn.confirm { color: var(--on-status); }
   <h3>Qué se guarda</h3>
   <p>Solo su idioma preferido (inglés o español) y la fecha en que aceptó los términos, guardados en este navegador. No hay inicio de sesión, cookies, anuncios ni rastreo. La página está alojada en GitHub Pages y carga sus fuentes desde Google Fonts, por lo que esos servicios ven una solicitud web normal, como en cualquier sitio.</p>
   <h3>Comentarios</h3>
-  <p>Los comentarios se envían solo si usted decide enviarlos, por GitHub o a través de mi sitio web. Llegan solo a la desarrolladora de la aplicación.</p>
+  <p>Los comentarios se envían solo si usted decide enviarlos: de forma privada a la desarrolladora de la aplicación (se guardan en la cuenta de Google de la desarrolladora), o por GitHub o a través de mi sitio web. Llegan solo a la desarrolladora de la aplicación.</p>
   <p class="kicker">Cuando una flota la usa de verdad</p>
   <h3>Los datos se quedan en la empresa</h3>
   <p>La consola funciona en el propio servidor de la empresa, y los datos de los vehículos van solo a ese servidor. No se envía nada a la autora de la aplicación ni a ningún servicio externo. Los registros de vuelo que se suben se revisan en ese servidor y no se guardan.</p>
@@ -570,6 +570,11 @@ button.btn.confirm { color: var(--on-status); }
       <input type="text" id="fbContact" autocomplete="email"></label>
     <div class="send" id="fbSend" hidden>
       <b data-i18n>Thanks! Choose how to send it. Nothing is sent until you do.</b>
+      <div id="fbPrivate" hidden>
+        <div class="row"><button type="button" class="btn" id="fbEmail" data-i18n>Send feedback</button></div>
+        <span class="meta" id="fbEmailStatus" role="status"></span>
+        <span class="meta" data-i18n>Or send it another way:</span>
+      </div>
       <div class="row">
         <a id="fbGithub" class="gh" target="_blank" rel="noopener" data-i18n>Send on GitHub</a>
         <button type="button" class="btn secondary" id="fbCopy" data-i18n>Copy feedback</button>
@@ -1156,6 +1161,7 @@ $('#privacyBtn').onclick = () => {
 };
 
 // Feedback: the static site has no server, so the person picks how to send it.
+const FEEDBACK_ENDPOINT = '';  // Google Apps Script web app URL; set by owner
 const fbText = () => {
   const type = document.querySelector('input[name="fbType"]:checked').value;
   return [`Type: ${type}`, `Usefulness (1-5): ${$('#fbRating').value || '-'}`,
@@ -1171,8 +1177,32 @@ $('#fbForm').onsubmit = e => {
   $('#fbOut').value = body;
   $('#fbGithub').href = 'https://github.com/karentinoco13-alt/fleet-debugger/issues/new?title=' +
     encodeURIComponent(`Feedback: ${type}`) + '&body=' + encodeURIComponent(body) + '&labels=feedback';
-  $('#fbSend').hidden = false; $('#fbCopied').textContent = '';
+  $('#fbSend').hidden = false; $('#fbCopied').textContent = ''; $('#fbEmailStatus').textContent = '';
+  $('#fbPrivate').hidden = !FEEDBACK_ENDPOINT;
+  $('#fbEmail').disabled = false; $('#fbEmail').textContent = t('Send feedback');
   $('#fbSend').scrollIntoView({block: 'nearest'});
+};
+// Private delivery to the developer, only what the person typed. Off while the endpoint is empty.
+async function sendFeedbackToOwner(payload) {
+  if (!FEEDBACK_ENDPOINT) return false;
+  const body = JSON.stringify(payload);  // text/plain avoids a CORS preflight; Apps Script accepts it
+  try { const r = await fetch(FEEDBACK_ENDPOINT, {method: 'POST', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body}); return r.ok; }
+  catch (e) { try { await fetch(FEEDBACK_ENDPOINT, {method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body}); return true; } catch (e2) { return false; } }
+}
+$('#fbEmail').onclick = async () => {
+  const btn = $('#fbEmail'), status = $('#fbEmailStatus');
+  btn.disabled = true; btn.textContent = t('Sending…'); status.textContent = '';
+  const ok = await sendFeedbackToOwner({app: 'Autonomous Fleet Debugger', page: location.href, language: I18N.lang,
+    type: document.querySelector('input[name="fbType"]:checked').value, rating: $('#fbRating').value || '-',
+    message: $('#fbText').value.trim(), contact: $('#fbContact').value.trim() || '-',
+    submitted: new Date().toISOString()});
+  if (ok) {
+    btn.textContent = t('Sent');
+    status.textContent = t('Thanks! Your feedback was sent to the developer.');
+  } else {
+    btn.disabled = false; btn.textContent = t('Send feedback');
+    status.textContent = t("Your feedback couldn't be sent. Check your connection and try again, or send it another way below.");
+  }
 };
 $('#fbCopy').onclick = async () => {
   try { await navigator.clipboard.writeText($('#fbOut').value); $('#fbCopied').textContent = t('Copied.'); }
