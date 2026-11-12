@@ -328,6 +328,7 @@ html[lang="es"] .l-en, html:not([lang="es"]) .l-es { display: none; }
                  "datos personales.")):
             assert old in body, old
             body = body.replace(old, new, 1)
+        body += ('\n<script>window.goatcounter={path:function(p){return location.host==="karentinoco13-alt.github.io"?p:location.host+p}};</script>')
         body += ('\n<script data-goatcounter="https://karentinoco13.goatcounter.com/count" async '
                  'src="//gc.zgo.at/count.js"></script>')
     if standalone:  # a normal web page for any static host
